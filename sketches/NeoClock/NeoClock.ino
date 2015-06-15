@@ -62,7 +62,7 @@ doCommand(const String& i) {
 	int h,m,test;
 	char dummy;
   i.toCharArray(b,sizeof(b));
-  Serial.print(b);
+  //Serial.print(b);
   switch(b[0]) {
     default:
       Serial.println(": unknown command ");
@@ -164,9 +164,12 @@ String input;
 void serialReaderCallback(Task* task) {
   if ( Serial.available() > 0 ) {
     char b = Serial.read();
-		Serial.println(b,HEX);
-    if ( b == '\n' ) {
-      doCommand(input);
+		//Serial.println(b,HEX);
+    if ( b == '\r' || b == '\n' ) {
+      if ( Serial.peek() == '\n' || Serial.peek() == '\r' )
+        Serial.read();
+      if ( input.length() != 0)
+        doCommand(input);
       input = "";
     } else {
       input += b;
