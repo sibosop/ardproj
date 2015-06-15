@@ -1,4 +1,4 @@
-DIR_LIST=./Blinker433\
+DIR_LIST=\
 	./LightBell\
 	./NeoClock\
 	./RGBLedWalker\
