@@ -164,10 +164,11 @@ String input;
 void serialReaderCallback(Task* task) {
   if ( Serial.available() > 0 ) {
     char b = Serial.read();
-		//Serial.println(b,HEX);
+		Serial.print(b);
     if ( b == '\r' || b == '\n' ) {
       if ( Serial.peek() == '\n' || Serial.peek() == '\r' )
         Serial.read();
+      Serial.println("");
       if ( input.length() != 0)
         doCommand(input);
       input = "";
