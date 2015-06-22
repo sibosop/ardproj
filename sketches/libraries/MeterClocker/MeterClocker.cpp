@@ -30,13 +30,16 @@ MeterClockerClass::displayTime(int h, int m, int s)
 void
 MeterClockerClass::displayHour(int h)
 {
+  h = h % 12;
+  if ( h == 0 )
+    h = 12;
   analogWrite(meterPin,h * 20);
 }
 
 void
 MeterClockerClass::displayMinute(int m)
 {
-  analogWrite(meterPin,m * 2);
+  analogWrite(meterPin,m * 4);
 }
 
 MeterClockerClass MeterClocker;
