@@ -1,8 +1,8 @@
 #include <arduino.h>
 #include "WavTrigger.h"
 
-WavTrigger::WavTrigger(uint8_t rx, uint8_t tx)
- : serialTimerTask(1,WavTrigger::SerialTimerTask::serialTimerCallback,rx,tx)
+WavTrigger::WavTrigger()
+ : serialTimerTask(1,WavTrigger::SerialTimerTask::serialTimerCallback)
 {
 }
 
@@ -52,14 +52,11 @@ WavTrigger::requestInfo()
 
 WavTrigger::SerialTimerTask::SerialTimerTask(unsigned long periodMs
                         , void (*callback)(Task* me)
-                        , uint8_t rx
-                        , uint8_t tx)
+                        )
   : Task(periodMs,callback)
   , serial()
   , length(0)
   , ip(inBuff)
-  , rxPin(rx)
-  , txPin(tx)
   , readerState(Som1)
 {
   memset(inBuff,0,sizeof(inBuff));
@@ -70,8 +67,6 @@ WavTrigger::SerialTimerTask::SerialTimerTask(unsigned long periodMs
 void
 WavTrigger::SerialTimerTask::begin(long b)
 {
-  pinMode(rxPin, INPUT);
-  pinMode(txPin, OUTPUT);
   serial.begin(b);
   SoftTimer.add(this);
 }

@@ -57,7 +57,7 @@ class WavTrigger
 {
 public:
   typedef char VersionString[20];
-  WavTrigger(uint8_t rx, uint8_t tx);
+  WavTrigger();
   void begin(long);
   bool getTrackList(WTTrackList*);
   bool getInfo(WTInfo*);
@@ -74,7 +74,7 @@ private:
     public: 
       friend WavTrigger;
       
-      SerialTimerTask(unsigned long periodMs, void (*callback)(Task* me),uint8_t,uint8_t);
+      SerialTimerTask(unsigned long periodMs, void (*callback)(Task* me));
       
       
     private:
@@ -83,8 +83,6 @@ private:
       uint8_t lcnt; 
       char *ip;
       char inBuff[256];
-      uint8_t rxPin;
-      uint8_t txPin;
       
       WTInfo info;
       WTTrackList trackList;

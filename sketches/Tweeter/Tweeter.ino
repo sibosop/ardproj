@@ -2,10 +2,9 @@
 #include <arduino.h>
 #include "SoftTimer.h"
 #include "WavTrigger.h"
-#define rxPin 8
-#define txPin 9
+ 
 
-WavTrigger wavTrigger(rxPin,txPin);
+WavTrigger wavTrigger;
 
 int msgCount;
 WTInfo info;
