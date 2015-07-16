@@ -28,6 +28,7 @@ WavTrigger::getTrackList(WTTrackList* tl)
 {
   if ( !serialTimerTask.trackList.valid )
     return false;
+  serialTimerTask.trackList.valid = false;
   memcpy(tl,&serialTimerTask.trackList,sizeof(serialTimerTask.trackList));
   return true;
 }
@@ -35,16 +36,26 @@ WavTrigger::getTrackList(WTTrackList* tl)
 void
 WavTrigger::requestTrackList()
 {
-  serialTimerTask.getTrackList();
+  if ( !serialTimerTask.trackList.valid )
+    serialTimerTask.getTrackList();
 }
 
 void
 WavTrigger::requestInfo()
 {
-  serialTimerTask.getVersion();
-  serialTimerTask.getInfo();
+  if ( !serialTimerTask.info.valid )
+  {
+    serialTimerTask.getVersion();
+    serialTimerTask.getInfo();
+  }
 }
 
+
+void
+WavTrigger::controlTrack(WTControlBlock* cb)
+{
+  serialTimerTask.controlTrack(cb->track,cb->code);
+}
 // set the data rate for the SoftwareSerial port
 
 
@@ -101,8 +112,21 @@ WavTrigger::SerialTimerTask::serialTimerCallback(Task* task)
 }
 
 void
+WavTrigger::SerialTimerTask::controlTrack(uint16_t t, ControlCode c)
+{
+  MsgHeader header(8,CONTROL_TRACK);
+  serial.write((const uint8_t *)&header,sizeof(header));
+  serial.write(c);
+  serial.write(t & 0xff);
+  serial.write(t >> 8);
+  serial.write(EOM);
+}
+
+
+void
 WavTrigger::SerialTimerTask::parseMsg()
 {
+  //Serial.println(msg,HEX);
   switch ( msg )
   {
     case VERSION_MSG:
@@ -120,6 +144,7 @@ WavTrigger::SerialTimerTask::parseMsg()
     
     case STATUS_MSG:
     {
+      //Serial.println("Got Status Msg");
       uint16_t *tp = (uint16_t *)&inBuff[0];
       trackList.numTracks = 0;
       for ( int i = 0; i < length/2; ++i)
@@ -141,6 +166,7 @@ WavTrigger::SerialTimerTask::serialTimer()
   while ( serial.available() )
   {  
     uint8_t c = serial.read();
+    //Serial.print("c "); Serial.println(c,HEX);
     switch ( readerState )
     {
 		  case Som1:
@@ -172,6 +198,7 @@ WavTrigger::SerialTimerTask::serialTimer()
         lcnt = c - 5;
         length = lcnt;
         readerState=Msg;
+        //Serial.print("length ");Serial.println(length,DEC);
         break;
       
       case Msg:
@@ -181,15 +208,25 @@ WavTrigger::SerialTimerTask::serialTimer()
         break;
       
       case Data:
-        *ip++ = (char)c;
-        if ( --lcnt == 0 )
+       // Serial.print("lcnt ");
+        //Serial.println(lcnt,DEC);
+
+        if ( lcnt-- == 0 )
+        {
           readerState = Eom;
-        break;
+        }
+        else
+        {
+          *ip++ = (char)c;
+          //Serial.println(inBuff);
+          break;
+        }
+        // fall through on Eom
       
       case Eom:
         if ( c != EOM )
 		    {
-          Serial.print("out of sync on ");
+          Serial.print("eom out of sync on ");
           Serial.println(c,HEX);
 		    }
 		    else

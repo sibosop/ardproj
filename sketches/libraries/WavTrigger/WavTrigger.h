@@ -7,6 +7,7 @@
 #define EOM   0x55
 #define GET_VERSION 0x1
 #define GET_INFO 0x2
+#define CONTROL_TRACK 0x03
 #define GET_STATUS 0x7
 #define VERSION_MSG 0x81
 #define INFO_MSG 0x82
@@ -41,6 +42,19 @@ struct WTControlBlock
   int16_t fadeVolume;
   uint16_t fadeSpeed;
   uint8_t fadeStop;  
+  WTControlBlock(uint16_t track_  
+            ,ControlCode code_=PlaySolo
+            ,int16_t volume_=0
+            ,int16_t fadeVolume_=0
+            ,uint16_t fadeSpeed_=0
+            ,uint8_t fadeStop_=0)
+    : track(track_)
+    , code(code_)
+    , volume(volume_)
+    , fadeVolume(fadeVolume_)
+    , fadeSpeed(fadeSpeed_)
+    , fadeStop(fadeStop_)
+    {}
 };
 
 struct WTInfo
@@ -120,6 +134,7 @@ private:
       void getInfo();
       void getVersion();
       void getTrackList();
+      void controlTrack(uint16_t t, ControlCode c);
       
   };
   SerialTimerTask serialTimerTask;
