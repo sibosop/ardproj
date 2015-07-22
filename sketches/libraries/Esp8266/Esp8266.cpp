@@ -2,16 +2,21 @@
 #include <arduino.h>
 #include "Esp8266.h"
 
+static const char *request = "tweet";
 
-Esp8266::Esp8266(uint8_t rx, uint8_t tx, const char *ssid_, const char *password_, int port_)
+Esp8266::Esp8266(uint8_t rx, uint8_t tx, const char *ssid_
+          , const char *password_, int port_, const char *address_)
   : Task(1,Esp8266::msgTaskCallback)
   , espSerial(rx,tx)
   , ssid(ssid_)
   , password(password_)
+  , address(address_)
   , port(port_)
   , cp(buff)
   , msgReady(false)
   , senderId(-1)
+  , initDone(false)
+  , connected(false)
 {
 }
 
@@ -34,7 +39,9 @@ void
 Esp8266::reset()
 {
   clearBuff();
-  state = Reset;
+  state = WaitReset;
+  initDone=false;
+  waitTimer = 5000;
 }
 
 #define CR  0xD
@@ -52,7 +59,7 @@ Esp8266::sendReset()
 {
   espSerial.print("AT+RST");
   sendCRLF();
-  state = WaitReady;
+  state=WaitReady;
 }
 
 
@@ -82,46 +89,98 @@ Esp8266::shift(char t)
 void
 Esp8266::parseMsg()
 {
-  Serial.print("Parsing");
+  Serial.print("Parsing:");
   Serial.println(buff);
-  for(cp=buff; *cp != LF; ++cp)
-  {
+
     switch ( state )
-    {
-      case WaitReady:
-        if ( !strncmp(cp,"ready", strlen("ready")))
-        {
-          Serial.println("got ready");
-          clearBuff();
-          state = saveState;
-          return;
-        }
-        break;
-      case WaitOk:
-        if ( !strncmp(cp,"OK", strlen("OK")) )
-        {
-          Serial.println("got OK");
-          clearBuff();
-          state = saveState;
-          return;
-        }
+  {
+    case WaitConnect:
+      if ( !strncmp(buff,"ERROR",strlen("ERROR")))
+      {
+        Serial.println("Got ERROR during connect");
+        state = WaitConnect;
+        return;
+      }
+      if ( !strncmp(buff,"CLOSED",strlen("CLOSED")))
+      {
+        Serial.println("Got CLOSED during connect retrying...");
+        connected = false;
+        state = RetryConnect;
+        waitTimer = 5000;
+        return;
+      }
+      if ( !strncmp(buff,"CONNECT", strlen("CONNECT")))
+      {
+        Serial.println("got CONNECT");
         
-      default:
-        break;
-    }
-    if ( !strncmp(cp,"+IPD,", strlen("+IPD,") ) )
-    {
-      shift();
-      senderId = atoi(cp);
-      shift();
-      int len = atoi(cp);
-      shift(':');
-      memset(msg,0,sizeof(msg));
-      for ( int i = 0; i < len; ++i )
-        msg[i] = *cp++;
-      msgReady = true;
-    }    
+        state = saveState;
+        connected = true;
+        return;
+      }
+    case WaitReady:
+      if ( !strncmp(buff,"ready", strlen("ready")))
+      {
+        Serial.println("got ready");
+        
+        state = saveState;
+        return;
+      }
+      break;
+    case WaitOk:
+      if ( !strncmp(buff,"OK", strlen("OK")) )
+      {
+        Serial.println("got OK");
+        
+        state = saveState;
+        return;
+      }
+      break;
+    
+    case Idle:
+      break;
+    default:
+      Serial.print("BAD STATE:");
+      Serial.println(state,DEC);
+      break;
   }
+  if ( !strncmp(buff,"ERROR",strlen("ERROR")))
+  {
+    Serial.println("Got ERROR");
+    state = Error;
+  }
+  if ( !strncmp(buff,"CLOSED",strlen("CLOSED")))
+  {
+    Serial.println("Got CLOSED");
+    connected = false;
+    state = Idle;
+  }
+  
+  if ( !strncmp(buff,"+IPD,", strlen("+IPD,") ) )
+  {
+    Serial.println("Got +IPD");
+    cp = buff;
+    Serial.println(cp);
+    shift();
+    Serial.println(cp);
+    int len = atoi(cp);
+    Serial.print("length:");
+    Serial.println(len,DEC);
+    shift(':');
+    Serial.println(cp);
+    
+    memset(msg,0,sizeof(msg));
+    for ( int i = 0; i < len; ++i )
+      msg[i] = *cp++;
+    Serial.print("msg:");
+    Serial.println(msg);
+    msgReady = true;
+    if ( !strncmp(cp,"CLOSED",strlen("CLOSED")))
+    {
+      Serial.println("Got CLOSED");
+      connected = false;
+      state = Idle;
+    }
+  }    
 }
 
 
@@ -132,7 +191,10 @@ Esp8266::msgTask()
   {
     *cp = espSerial.read();
     if ( *cp == LF )
+    {
       parseMsg();
+      clearBuff();
+    }
     else
       ++cp;
   }
@@ -140,40 +202,70 @@ Esp8266::msgTask()
   {
     default:
       break;
+    
     case Error:
       Serial.println("Got Error");
-      state = Reset;
+      state = Idle;
+      break;
+      
+    case WaitReset:
+      if (--waitTimer == 0 )
+      {
+        Serial.println("starting reset sequence");
+        state = Reset;
+      }
       break;
       
     case Reset:
-      sendReset();
+      Serial.println("sending reset sequence");
       state = EchoOff;
+      sendReset();
+      
       break;
       
     case EchoOff:
-      echoOff();
       state = SetMode;
+      echoOff();
+      
       break;
       
     case SetMode:
-      setMode();
       state = JoinAp;
+      setMode();
       break;
       
     case JoinAp:
-      joinAp();
       state = SetMux;
+      joinAp();
       break;
       
     case SetMux:
+      state = InitDone;
       setMux();
-      state = StartServer;
       break;
       
     case StartServer:
+      state = Idle;
       startServer();
+      break;
+      
+    case InitDone:
+      Serial.println("Init done");
+      initDone = true;
       state = Idle;
       break;
+      
+    case WaitForInput:
+      espSerial.print(request);
+      state = Idle;
+      sendCRLF();
+      break;
+      
+    case RetryConnect:
+      if (--waitTimer==0)
+        connect();
+      break;
+   
   }
 }
 
@@ -187,22 +279,26 @@ Esp8266::msgTaskCallback(Task *t)
 void
 Esp8266::echoOff()
 {
+  Serial.println("echo off");
   espSerial.print("ATE0");
   sendCRLF();
 }
 void
 Esp8266::setMode()
 {
+  Serial.println("set mode");
   espSerial.print("AT+CWMODE=3");
   sendCRLF();
 }
 void
 Esp8266::joinAp()
 {
+  Serial.println("join ap");
   espSerial.print("AT+CWJAP=");
   espSerial.print("\"");
   espSerial.print(ssid);
   espSerial.print("\",");
+  espSerial.print("\"");
   espSerial.print(password);
   espSerial.print("\"");
   sendCRLF();
@@ -210,13 +306,47 @@ Esp8266::joinAp()
 void
 Esp8266::setMux()
 {
-  espSerial.print("AT+CIPMUX=1");
+  Serial.println("setMux");
+  espSerial.print("AT+CIPMUX=0");
   sendCRLF();
 }
 void
 Esp8266::startServer()
 {
+  Serial.println("start server");
   espSerial.print("AT+CIPSERVER=1,");
   espSerial.print(port,DEC);
+  sendCRLF();
+}
+
+ 
+void
+Esp8266::connect()
+{
+  if ( connected )
+    return;
+  Serial.println("connect to server");
+  Serial.print("AT+CIPSTART=\"TCP\",");
+  Serial.print("\"");
+  Serial.print(address);
+  Serial.print("\",");
+  Serial.println(port,DEC);
+  espSerial.print("AT+CIPSTART=\"TCP\",");
+  espSerial.print("\"");
+  espSerial.print(address);
+  espSerial.print("\",");
+  espSerial.print(port,DEC);
+  sendCRLF();
+  state=WaitConnect;
+}
+
+void
+Esp8266::sendRequest()
+{
+  Serial.print("AT+CIPSEND=");
+  Serial.println(strlen(request)+2,DEC);
+  espSerial.print("AT+CIPSEND=");
+  espSerial.print(strlen(request)+2,DEC);
+  state=WaitForInput;
   sendCRLF();
 }
