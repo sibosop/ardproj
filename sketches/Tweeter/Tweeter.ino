@@ -6,6 +6,17 @@
 
 WavTrigger wavTrigger;
 
+#define NUM_LISTS 5
+const char * const lists[NUM_LISTS] =
+{
+  "1 2 3 0 4"
+  ,"5 6 7 8 9 10"
+  ,"11 12 13 14 15"
+  ,"16 17 18 19"
+  ,"20 0 11 4 15"
+};
+int li;
+const char *lp;
 bool gotInfo;
 
 int msgCount;
@@ -15,15 +26,53 @@ WTTrackList trackList;
 int lastnum = -1;
 bool sendTrack;
 uint16_t waitTimeout;
+uint16_t track;
+int repCount;
+int listCount;
 #define WAIT_INTERVAL 5
+#define LIST_REPS 4
+
+void nextTrack()
+{
+  track = atoi(lp);
+  if ( !--repCount )
+  {
+    repCount = random(1,4);
+     
+    while( *lp  )
+    {
+      if ( *lp == ' ')
+        break;
+        
+      ++lp;
+    }
+    if ( *lp )
+      ++lp;
+      
+    if ( *lp == 0 )
+    {
+      if ( ++listCount == LIST_REPS)
+      {
+        listCount = 0;
+        if ( ++li == NUM_LISTS )
+          li = 0;
+      }
+      lp = lists[li];
+      Serial.print("li:");
+      Serial.println(li,DEC);
+    }
+  }
+  track = atoi(lp);
+  Serial.print("track:");
+  Serial.println(track,DEC);
+}
+
 
 void setNewTrack()
 {
-  uint16_t track = 0;
-  if (info.valid)
-  {
-    track = random(0,info.numTracks+1);
-  }
+  
+  nextTrack();
+  
   //Serial.print("new track:");
   //Serial.println(track,DEC);
   if ( track )
@@ -42,14 +91,16 @@ void msgCallback(Task* task)
 {
   if (wavTrigger.getInfo(&info))
   {
-#if 0
+#if 1
     Serial.println();
     Serial.println(info.version);
     Serial.print("tracks: ");
     Serial.println(info.numTracks,DEC);
 #endif
-    gotInfo = true;
   }
+  if ( !info.valid )
+    return;
+    
   if ( wavTrigger.getTrackList(&trackList) )
   {
     if ( lastnum != trackList.numTracks )
@@ -81,10 +132,7 @@ void msgCallback(Task* task)
     setNewTrack();
   }
 
-  if ( gotInfo )
-    wavTrigger.requestTrackList();
-  
-
+  wavTrigger.requestTrackList();
 }
 
 Task msgTimer(WAIT_INTERVAL,msgCallback);
@@ -96,13 +144,18 @@ void setup()  {
   msgCount = 0;
   infoCount = 0;
   memset(&info,0,sizeof(info));
-  gotInfo = false;
   lastnum = -1;
   wavTrigger.requestInfo();
   SoftTimer.add(&msgTimer);
-  delay(2000);
   randomSeed(analogRead(0));
   sendTrack = false;
+  li = 0;
+  lp = lists[li];
+  repCount = 1;
+  listCount = 0;
+  nextTrack();
+  delay(2000);
+  
 }
 
 
