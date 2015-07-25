@@ -32,15 +32,14 @@ nextList()
 void
 msgCallback(Task *)
 {
-  if ( !--waitTime )
+  if ( tweeter.needsList() )
   {
-    waitTime = TWEET_WAIT;
     nextList();
     tweeter.setList(lp);
   }
 }
 
-Task msg(1000,msgCallback);
+Task msg(10,msgCallback);
 
 void
 setup()
@@ -48,9 +47,7 @@ setup()
   Serial.begin(9600);
   nextList();
   li = 0;
-  tweeter.setList(lp);
   tweeter.begin();
-  waitTime = TWEET_WAIT;
   SoftTimer.add(&msg);
   delay(2000);
 }

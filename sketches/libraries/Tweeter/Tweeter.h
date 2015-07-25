@@ -11,6 +11,7 @@ public:
   Tweeter();
   void begin();
   void setList(const char *);
+  bool needsList();
   
 private:
   void nextTrack();

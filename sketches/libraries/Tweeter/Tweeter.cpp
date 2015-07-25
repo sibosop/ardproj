@@ -25,8 +25,8 @@ Tweeter::nextTrack()
       
     if ( *lp == 0 )
     {
-      strcpy(list,newList);
-      lp = list;
+      Serial.println("needs list");
+      return;
     }
   }
   track = atoi(lp);
@@ -38,7 +38,9 @@ Tweeter::nextTrack()
 void 
 Tweeter::setNewTrack()
 {
-  
+  if ( needsList() )
+    return;
+    
   nextTrack();
   
   //Serial.print("new track:");
@@ -89,7 +91,7 @@ Tweeter::check()
     }
     
   }
-  if ( !*lp )
+  if ( needsList() )
     return;
     
   if ( sendTrack )
@@ -103,7 +105,6 @@ Tweeter::check()
     sendTrack = false;
     setNewTrack();
   }
-
   wavTrigger.requestTrackList();
 }
 
@@ -139,5 +140,13 @@ Tweeter::begin()
 void
 Tweeter::setList(const char *l)
 {
-  strcpy(newList,l);
+  strcpy(list,l);
+  lp = list;
+  nextTrack();
+}
+
+bool
+Tweeter::needsList()
+{
+  return *lp == 0;
 }
