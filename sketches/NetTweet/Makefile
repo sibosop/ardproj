@@ -1,6 +1,6 @@
 BOARD_TAG=uno
 #BOARD_TAG=pro5v328
-ARDUINO_LIBS = AltSoftSerial SoftTimer WavTrigger
+ARDUINO_LIBS = AltSoftSerial SoftTimer WavTrigger Tweeter
 #include ../../Arduino.mk
 test:
 	make upload

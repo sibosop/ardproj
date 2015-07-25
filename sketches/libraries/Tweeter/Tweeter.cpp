@@ -1,38 +1,12 @@
 // include the SoftwareSerial library so you can use its functions:
-#include <arduino.h>
-#include "SoftTimer.h"
-#include "WavTrigger.h"
+#include "Tweeter.h"
  
 
-WavTrigger wavTrigger;
 
-#define NUM_LISTS 5
-const char * const lists[NUM_LISTS] =
-{
-  "1 2 3 0 4"
-  ,"5 6 7 8 9 10"
-  ,"11 12 13 14 15"
-  ,"16 17 18 19"
-  ,"20 0 11 4 15"
-};
-int li;
-const char *lp;
-bool gotInfo;
-
-int msgCount;
-int infoCount;
-WTInfo info;
-WTTrackList trackList;
-int lastnum = -1;
-bool sendTrack;
-uint16_t waitTimeout;
-uint16_t track;
-int repCount;
-int listCount;
-#define WAIT_INTERVAL 5
 #define LIST_REPS 4
 
-void nextTrack()
+void 
+Tweeter::nextTrack()
 {
   track = atoi(lp);
   if ( !--repCount )
@@ -51,15 +25,8 @@ void nextTrack()
       
     if ( *lp == 0 )
     {
-      if ( ++listCount == LIST_REPS)
-      {
-        listCount = 0;
-        if ( ++li == NUM_LISTS )
-          li = 0;
-      }
-      lp = lists[li];
-      Serial.print("li:");
-      Serial.println(li,DEC);
+      strcpy(list,newList);
+      lp = list;
     }
   }
   track = atoi(lp);
@@ -68,7 +35,8 @@ void nextTrack()
 }
 
 
-void setNewTrack()
+void 
+Tweeter::setNewTrack()
 {
   
   nextTrack();
@@ -87,7 +55,8 @@ void setNewTrack()
   }
 }
 
-void msgCallback(Task* task)
+void 
+Tweeter::check()
 {
   if (wavTrigger.getInfo(&info))
   {
@@ -120,6 +89,9 @@ void msgCallback(Task* task)
     }
     
   }
+  if ( !*lp )
+    return;
+    
   if ( sendTrack )
   {
     sendTrack = false;
@@ -135,29 +107,37 @@ void msgCallback(Task* task)
   wavTrigger.requestTrackList();
 }
 
-Task msgTimer(WAIT_INTERVAL,msgCallback);
-
-void setup()  {
-  // define pin modes for tx, rx:
-  Serial.begin(9600);
-  wavTrigger.begin(57600);
-  msgCount = 0;
-  infoCount = 0;
-  memset(&info,0,sizeof(info));
-  lastnum = -1;
-  wavTrigger.requestInfo();
-  SoftTimer.add(&msgTimer);
-  randomSeed(analogRead(0));
-  sendTrack = false;
-  li = 0;
-  lp = lists[li];
-  repCount = 1;
-  listCount = 0;
-  nextTrack();
-  delay(2000);
-  
+void
+Tweeter::msgCallback(Task *t)
+{
+  ((Tweeter *)t)->check();
 }
 
+Tweeter::Tweeter() 
+  : Task(WAIT_INTERVAL,msgCallback)
+  , msgCount(0)
+  , lastnum(-1)
+  , sendTrack(false)
+  , repCount(1)
+  , lp(list)
+{
+  memset(&info,0,sizeof(info));
+  memset(list,0,sizeof(list));
+  memset(newList,0,sizeof(newList));
+}
 
+void 
+Tweeter::begin()
+{
+  wavTrigger.begin(57600);
+  SoftTimer.add(this);
+  wavTrigger.requestInfo();
+  randomSeed(analogRead(0));
+  nextTrack();  
+}
 
-
+void
+Tweeter::setList(const char *l)
+{
+  strcpy(newList,l);
+}
