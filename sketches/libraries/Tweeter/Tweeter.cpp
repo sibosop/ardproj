@@ -25,7 +25,6 @@ Tweeter::nextTrack()
       
     if ( *lp == 0 )
     {
-      Serial.println("needs list");
       return;
     }
   }

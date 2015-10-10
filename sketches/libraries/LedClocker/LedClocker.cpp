@@ -58,6 +58,17 @@ LedClocker::setMinuteColor(uint32_t c) {
 	writeEepromColor(0,minuteColor);
 }
 
+void
+LedClocker::setBackgroundColor(uint32_t c) {
+	backgroundColor = c;
+	writeEepromColor(8,backgroundColor);
+}
+
+void
+LedClocker::setPointColor(uint32_t c) {
+	pointColor = c;
+	writeEepromColor(12,pointColor);
+}
 
 void
 LedClocker::init(Stripper *strip_,bool reversed_) {
@@ -68,9 +79,13 @@ LedClocker::init(Stripper *strip_,bool reversed_) {
 	seconds = 0;
 	minuteColor = MinuteColor;
 	hourColor = HourColor;
+  backgroundColor = BackgroundColor;
+  pointColor = PointColor;
 	
 	minuteColor = readEepromColor(0,MinuteColor);
 	hourColor = readEepromColor(4,HourColor);
+  backgroundColor = readEepromColor(8,BackgroundColor);
+  pointColor = readEepromColor(12,PointColor);
 }
 
 void
@@ -113,6 +128,11 @@ LedClocker::refreshTime() {
 		hpos=(hours*5)+(minutes/12);
 		spos=seconds;
 	}
+  for ( int i = 0; i < 60; ++i )
+    strip->setPixelColor(i,backgroundColor);
+  for ( int i = 0; i < 12; ++i )
+    strip->setPixelColor(i*5,pointColor);
+  
 	strip->setPixelColor(spos,r,g,b);
 	strip->setPixelColor(mpos,minuteColor);
 	strip->setPixelColor(hpos,hourColor);

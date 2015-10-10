@@ -103,6 +103,28 @@ doCommand(const String& i) {
 		Serial.println(color,HEX);
 		Display.setMinuteColor(color);
 		break;
+		
+		case 'b':
+		test = sscanf(b,"%c %lx",&dummy, &color);
+		if ( test != 2 ) {
+			Serial.println(": Illegal color");
+			return;
+		}
+		Serial.print("Set Background Color to ");
+		Serial.println(color,HEX);
+		Display.setBackgroundColor(color);
+		break;
+		
+		case 'p':
+		test = sscanf(b,"%c %lx",&dummy, &color);
+		if ( test != 2 ) {
+			Serial.println(": Illegal color");
+			return;
+		}
+		Serial.print("Set Point Color to ");
+		Serial.println(color,HEX);
+		Display.setPointColor(color);
+		break;
   }
   Serial.println(" OK");
 }

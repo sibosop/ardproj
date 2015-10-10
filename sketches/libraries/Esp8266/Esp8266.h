@@ -13,7 +13,7 @@ public:
   bool ready() { return initDone; }
   void connect();
   bool isConnected() { return connected; }
-  void sendRequest();
+  void sendRequest(const char *);
 private:
   void clearBuff();
   static void msgTaskCallback(Task *);
@@ -25,6 +25,7 @@ private:
   int port;
   char buff[200];
   char msg[200];
+  char request[10];
   char *cp;
   bool msgReady;
   int senderId;

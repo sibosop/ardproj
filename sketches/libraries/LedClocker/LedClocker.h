@@ -14,12 +14,16 @@ public:
 		,MinuteColor=0x222200
 		,HourColor=0x2222
 		,ColorValid=0x5A
+		,BackgroundColor=0x020000
+		,PointColor=0x000500
 	};
 	void init(Stripper *strip, bool reversed=false);
 	void resetColor();
 	void displayTime(int h, int m, int s);
 	void setHourColor(uint32_t c);
 	void setMinuteColor(uint32_t c) ;
+  void setBackgroundColor(uint32_t c);
+  void setPointColor(uint32_t c);
 private:
 	Stripper *strip;
 	int hours;
@@ -32,6 +36,8 @@ private:
 	void writeEepromColor(int a, uint32_t c);
 	uint32_t	minuteColor;
 	uint32_t 	hourColor;
+  uint32_t  backgroundColor;
+  uint32_t  pointColor;
 };
 
 extern LedClocker	Display;

@@ -10,7 +10,7 @@ static const int port = 6666;
 
 static const char *ssid = "sibosop";
 static const char *password = "sibosopsiboso";
-static const char *address = "192.168.1.139"; 
+static const char *address = "192.168.1.138"; 
 
 Esp8266 esp = Esp8266(rxPin,txPin,ssid,password,port,address);
 enum EspState {
@@ -56,7 +56,7 @@ void espCallback(Task *) {
       
     case SendRequest:
       Serial.println("sendRequest");
-      esp.sendRequest();
+      esp.sendRequest("tweet");
       espState = WaitResponse;
       break;
       

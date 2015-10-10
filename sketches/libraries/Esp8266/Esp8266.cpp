@@ -2,7 +2,6 @@
 #include <arduino.h>
 #include "Esp8266.h"
 
-static const char *request = "tweet";
 
 Esp8266::Esp8266(uint8_t rx, uint8_t tx, const char *ssid_
           , const char *password_, int port_, const char *address_)
@@ -341,8 +340,9 @@ Esp8266::connect()
 }
 
 void
-Esp8266::sendRequest()
+Esp8266::sendRequest(const char *r)
 {
+  strcpy(request,r);
   Serial.print("AT+CIPSEND=");
   Serial.println(strlen(request)+2,DEC);
   espSerial.print("AT+CIPSEND=");
