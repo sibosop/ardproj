@@ -38,9 +38,7 @@ FrankenClockerClass::displayTime(int h, int m, int s)
   }
 }
 
-int testH;
-static const uint8_t hrs[] =
-  { 255, 21, 43, 64, 85, 106, 127, 149, 170, 191 , 212, 234 };
+
 void
 FrankenClockerClass::displayHour(int h)
 {
@@ -49,7 +47,7 @@ FrankenClockerClass::displayHour(int h)
     h = 12;
   Serial.print("hour val: ");
   Serial.println(h);
-  float v = (255.0 / 12.0 ) * h;
+  float v = (256.0 / 12.0 ) * h;
   v -= 5.0;
   Serial.print("v: ");
   Serial.println(v);
@@ -62,10 +60,11 @@ FrankenClockerClass::displayMinute(int m)
 {
   Serial.print("minute val: ");
   Serial.println(m);
-  float v = (255.0 / 120.0) * m;
-  v -= 5.0;
+  float v = (256.0 / 120.0) * m;
   Serial.print("v: ");
   Serial.println(v);
+  if ( v > 5.0 )
+    v -= 5.0;
   analogWrite(meterPin,v);
 }
 
