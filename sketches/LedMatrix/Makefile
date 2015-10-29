@@ -3,6 +3,6 @@
 #BOARD_SUB=16MHzatmega328
 # only this for uno
 BOARD_TAG=uno
-ARDUINO_LIBS = 
+ARDUINO_LIBS = SPI
 #include ../../Arduino.mk
 include $(ARDMK_DIR)/Arduino.mk
