@@ -1,4 +1,4 @@
-#include <SPI.h>
+
 #include <SoftTimer.h>
 #include <LedMatrix.h>
 
@@ -10,23 +10,34 @@ byte red;
 byte green;
 void patternCallback(Task* task) {
   LedMatrix.clear();
+#if 0
   if ( ++red == 8 )
     red = 0;
   green = 7 - red;
-  Serial.print("red:");Serial.println(red);
-  Serial.print("green:");Serial.println(green);
   for (int i = 0; i < 8; i++ )
   {  
     LedMatrix.set(i,red,LedMatrixClass::RedPos);
     LedMatrix.set(i,green,LedMatrixClass::GreenPos);
   }
+#else
+  for (int i = 0; i < 8; i++ )
+  {  
+    red = random(8);
+    green = random(8);
+    LedMatrix.set(i,red,LedMatrixClass::RedPos);
+    LedMatrix.set(i,green,LedMatrixClass::GreenPos);
+  }
+#endif
 }
-Task patternTimer(20000,patternCallback);
+Task patternTimer(1000,patternCallback);
 
+byte row;
 void refreshCallback(Task* task) {
-  LedMatrix.refresh();
+  LedMatrix.refresh(row++);
+  if ( row == 8 )
+    row = 0;
 }
-Task refreshTimer(3,refreshCallback);
+Task refreshTimer(1,refreshCallback);
 
 
 void setup() {
@@ -37,4 +48,5 @@ void setup() {
   SoftTimer.add(&patternTimer);
   red = 0;
   green = 0;
+  randomSeed(analogRead(0));
 }
