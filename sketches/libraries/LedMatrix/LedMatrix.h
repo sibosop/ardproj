@@ -5,6 +5,7 @@
 #include <arduino.h>
 #include <SPI.h>
 #include <SoftTimer.h>
+#include <ScreenBuffer.h>
 
 
 #define MISO 12
@@ -17,6 +18,18 @@ private:
       byte green;
       byte red;
       byte row;
+      ColPos()
+        : green(0)
+        , red(0)
+        , row(0)
+        {}
+      void dump()
+      {
+        Serial.print("row:");Serial.print(row,HEX);
+        Serial.print(" red:");Serial.print(red,HEX);
+        Serial.print(" green :");Serial.print(green,HEX);
+        Serial.println();
+      }
     };
     ColPos matrix[8];
 public:
@@ -30,7 +43,7 @@ public:
   void set(byte row, byte col, int posType);
   void scanLine();
   
-  void begin(byte latchPin_, byte resetPin_ );
+  void begin(byte latchPin_, byte resetPin_,ScreenBuffer *sb);
   
   void dump();
   
@@ -40,6 +53,7 @@ private:
   byte latchPin;
   byte resetPin;
   byte row;
+  ScreenBuffer* screenBuffer;
 };
 
 extern LedMatrixClass LedMatrix;

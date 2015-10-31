@@ -1,5 +1,5 @@
 #include "LedMatrix.h"
-#define RefreshRate .3
+#define RefreshRate .01
 
 LedMatrixClass::LedMatrixClass()
   : Task(RefreshRate,scanLineCallback)
@@ -41,13 +41,21 @@ LedMatrixClass::set(byte row, byte col, int posType)
 void
 LedMatrixClass::scanLine()
 {
-  ColPos trans(matrix[row++]);
-  if (row == 8 )
+  ColPos trans;
+  bitWrite(trans.row,row,1);
+  for (int i = 0; i < 8; i++ )
+  {
+    bitWrite(trans.green,i,screenBuffer->buffer[row][i].green);
+    bitWrite(trans.red,i,screenBuffer->buffer[row][i].red);
+  }
+  
+  if (++row == 8 )
     row = 0;
   #if 0
   Serial.println("refresh");
   dump();
   #endif
+  //trans.dump();
   clearShiftRegisters();
   digitalWrite(latchPin, LOW);
   //digitalWrite(clockPin, LOW);
@@ -67,12 +75,13 @@ LedMatrixClass::scanLineCallback(Task *me)
 }
 
 void 
-LedMatrixClass::begin(byte latchPin_, byte resetPin_ )
+LedMatrixClass::begin(byte latchPin_, byte resetPin_,ScreenBuffer *sb )
 {
   Serial.println("begin");
   clear();
   latchPin = latchPin_;
   resetPin = resetPin_;
+  screenBuffer = sb;
   row = 0;
   pinMode(latchPin, OUTPUT);
   pinMode(MOSI, OUTPUT); 

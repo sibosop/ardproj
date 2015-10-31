@@ -5,12 +5,12 @@
 
 const int latchPin = 4;
 const int resetPin = 5;
-
+ScreenBuffer screenBuffer;
 byte red;
 byte green;
 byte drow;
 void patternCallback(Task* task) {
-  LedMatrix.clear();
+  screenBuffer.clear();
 #if 0
   if ( ++red == 8 )
     red = 0;
@@ -32,24 +32,36 @@ void patternCallback(Task* task) {
   green = 7 - red;
   drow = red;
   
-  
-  Serial.print("drow:"); Serial.print(drow,HEX);
-  Serial.print(" red:"); Serial.print(red,HEX);
-  Serial.print(" green:"); Serial.println(green,HEX);
-  LedMatrix.set(drow,red,LedMatrixClass::RedPos);
-  LedMatrix.set(drow,green,LedMatrixClass::GreenPos);
+  screenBuffer.buffer[drow][green].green=1;
+  screenBuffer.buffer[drow][red].red=1;
   
 #endif
 
 #if 1
   for (int i = 0; i < 8; i++ )
   { 
-    red = random(8);
-    green = random(8);
-    LedMatrix.set(i,red,LedMatrixClass::RedPos);
-    LedMatrix.set(i,green,LedMatrixClass::GreenPos);
+    for ( int j = 0; j < 8; j++ )
+    {
+      byte c = random(4);
+      switch( c )
+      {
+        case 1:
+          screenBuffer.buffer[i][j].green = 1;
+          break;
+        case 2:
+          screenBuffer.buffer[i][j].red = 1;
+          break;
+        case 3:
+          screenBuffer.buffer[i][j].red = 1;
+          screenBuffer.buffer[i][j].green = 1;
+          break;
+        default:
+          break;
+      }
+    }
   }
 #endif
+  //screenBuffer.dump();
 }
 Task patternTimer(100,patternCallback);
 
@@ -57,7 +69,7 @@ Task patternTimer(100,patternCallback);
 
 void setup() {
   //set pins to output because they are addressed in the main loop
-  LedMatrix.begin(latchPin,resetPin);
+  LedMatrix.begin(latchPin,resetPin,&screenBuffer);
   Serial.begin(9600);
   
   SoftTimer.add(&patternTimer);
