@@ -39,13 +39,13 @@ class Task
      *  callback - Is a static function reference, the function will be called each time. The callback function need to
      * have one argument, which is the currently running task.
      */
-    Task(unsigned long periodMs, void (*callback)(Task* me));
+    Task(float periodMs, void (*callback)(Task* me));
     
     /**
      * The timeslot in milliseconds the handler should be called.
      * Do not add values greater then 4,294,967, which is about 71 minutes!
      */
-    void setPeriodMs(unsigned long periodMs);
+    void setPeriodMs(float);
 
     /**
      * The timeslot in milliseconds the handler should be called. If the value is near 1 the handler will be called in every loop.

@@ -27,13 +27,13 @@
 #include "Arduino.h"
 #include "Task.h"
 
-Task::Task(unsigned long periodMs, void (*callback)(Task* me)) {
+Task::Task(float periodMs, void (*callback)(Task* me)) {
   this->setPeriodMs(periodMs);
   this->callback = callback;
   this->lastCallTimeMicros = 0;
   this->nextTask = NULL;
 }
 
-void Task::setPeriodMs(unsigned long periodMs) {
+void Task::setPeriodMs(float periodMs) {
   this->periodMicros = periodMs * 1000;
 }

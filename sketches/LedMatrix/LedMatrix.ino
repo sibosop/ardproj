@@ -37,7 +37,7 @@ void refreshCallback(Task* task) {
   if ( row == 8 )
     row = 0;
 }
-Task refreshTimer(1,refreshCallback);
+Task refreshTimer(.3,refreshCallback);
 
 
 void setup() {
