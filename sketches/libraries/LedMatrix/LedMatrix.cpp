@@ -1,43 +1,13 @@
 #include "LedMatrix.h"
 #define RefreshRate .01
+#define MAX_BRIGHT  32
 
 LedMatrixClass::LedMatrixClass()
   : Task(RefreshRate,scanLineCallback)
   {}
 
 
-void 
-LedMatrixClass::clear() 
-{
-#if 0
-  Serial.println("clear");
-#endif
-  for ( int i = 0; i < 8; ++i )
-  {
-      bitWrite(matrix[i].row,i,1);
-      matrix[i].red = 0;
-      matrix[i].green = 0;
-  }
-}
-void
-LedMatrixClass::set(byte row, byte col, int posType)
-{
-#if 0
-  Serial.print("set ");
-  Serial.print("row:");Serial.print(row);
-  Serial.print(" col:");Serial.println(col);
-#endif
-  switch (posType)
-  {
-    case GreenPos:
-    default:
-      bitWrite(matrix[row].green,col,1);
-      break;
-    case RedPos:
-      bitWrite(matrix[row].red,col,1);
-      break;
-  }
-}
+
 void
 LedMatrixClass::scanLine()
 {
@@ -45,14 +15,23 @@ LedMatrixClass::scanLine()
   bitWrite(trans.row,row,1);
   for (int i = 0; i < 8; i++ )
   {
-    bitWrite(trans.green,i,screenBuffer->buffer[row][i].green);
-    bitWrite(trans.red,i,screenBuffer->buffer[row][i].red);
+    byte green = screenBuffer->buffer[row][i].green;
+    byte red = screenBuffer->buffer[row][i].red;
+    if ( green > screenCnt )
+      bitWrite(trans.green,i,1);
+    
+    if ( red > screenCnt )
+      bitWrite(trans.red,i,1);
   }
   
   if (++row == 8 )
+  {
     row = 0;
+    if ( ++screenCnt == maxBright )
+      screenCnt = 0;
+  }
   #if 0
-  Serial.println("refresh");
+  Serial.println("scanLine");
   dump();
   #endif
   //trans.dump();
@@ -75,14 +54,14 @@ LedMatrixClass::scanLineCallback(Task *me)
 }
 
 void 
-LedMatrixClass::begin(byte latchPin_, byte resetPin_,ScreenBuffer *sb )
+LedMatrixClass::begin(byte latchPin_, byte resetPin_,ScreenBuffer *sb)
 {
-  Serial.println("begin");
-  clear();
+  maxBright = MAX_BRIGHT;
   latchPin = latchPin_;
   resetPin = resetPin_;
   screenBuffer = sb;
   row = 0;
+  screenCnt = 0;
   pinMode(latchPin, OUTPUT);
   pinMode(MOSI, OUTPUT); 
   pinMode(SPICLK, OUTPUT);

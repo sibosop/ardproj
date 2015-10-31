@@ -9,6 +9,11 @@ ScreenBuffer screenBuffer;
 byte red;
 byte green;
 byte drow;
+byte bright;
+int maxRand;
+int randCnt;
+int changeCnt;
+bool changeDir;
 void patternCallback(Task* task) {
   screenBuffer.clear();
 #if 0
@@ -38,30 +43,53 @@ void patternCallback(Task* task) {
 #endif
 
 #if 1
+  //Serial.print("bright:");Serial.print(bright);
+  //Serial.println();
   for (int i = 0; i < 8; i++ )
   { 
     for ( int j = 0; j < 8; j++ )
     {
-      byte c = random(4);
+      byte c = random(maxRand);
       switch( c )
       {
-        case 1:
-          screenBuffer.buffer[i][j].green = 1;
-          break;
+#if 0
         case 2:
-          screenBuffer.buffer[i][j].red = 1;
+          screenBuffer.buffer[i][j].green = random(LedMatrix.maxBright);
           break;
         case 3:
-          screenBuffer.buffer[i][j].red = 1;
-          screenBuffer.buffer[i][j].green = 1;
+          screenBuffer.buffer[i][j].red = random(LedMatrix.maxBright);
+          break;
+#endif
+        case 1:
+          screenBuffer.buffer[i][j].red = random(LedMatrix.maxBright);
+          screenBuffer.buffer[i][j].green = random(LedMatrix.maxBright);
           break;
         default:
           break;
       }
     }
   }
+  if ( (++randCnt % changeCnt) == 0 )
+  {  
+    if ( changeDir )
+    {
+      if ( ++maxRand == 100 )
+      {
+        changeDir = false;
+      }
+    } else {
+      if (--maxRand == 2 )
+      {
+        changeDir = true;
+      }
+    }
+  }
+  
+  
 #endif
+
   //screenBuffer.dump();
+  
 }
 Task patternTimer(100,patternCallback);
 
@@ -76,5 +104,10 @@ void setup() {
   red = 0;
   green = 0;
   drow = 0;
+  bright = 0;
+  maxRand = 2;
+  randCnt = 0;
+  changeCnt = 3;
+  changeDir = true;
   randomSeed(analogRead(0));
 }

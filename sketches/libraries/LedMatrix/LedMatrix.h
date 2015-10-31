@@ -39,20 +39,20 @@ public:
   } PosType;
   
   LedMatrixClass();
-  void clear();
-  void set(byte row, byte col, int posType);
+  
   void scanLine();
   
   void begin(byte latchPin_, byte resetPin_,ScreenBuffer *sb);
   
   void dump();
-  
+  byte maxBright;
 private:
   void clearShiftRegisters();
   static void scanLineCallback(Task *);
   byte latchPin;
   byte resetPin;
   byte row;
+  byte screenCnt;
   ScreenBuffer* screenBuffer;
 };
 
