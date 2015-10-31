@@ -53,20 +53,13 @@ void patternCallback(Task* task) {
 }
 Task patternTimer(100,patternCallback);
 
-byte row;
-void refreshCallback(Task* task) {
-  LedMatrix.refresh(row++);
-  if ( row == 8 )
-    row = 0;
-}
-Task refreshTimer(.3,refreshCallback);
 
 
 void setup() {
   //set pins to output because they are addressed in the main loop
   LedMatrix.begin(latchPin,resetPin);
   Serial.begin(9600);
-  SoftTimer.add(&refreshTimer);
+  
   SoftTimer.add(&patternTimer);
   red = 0;
   green = 0;
