@@ -32,6 +32,11 @@ private:
       }
     };
     ColPos matrix[8];
+    ScreenBuffer sb1;
+    ScreenBuffer sb2;
+    ScreenBuffer *user;
+    ScreenBuffer *active;
+    bool swapRequest;
 public:
   enum {
     GreenPos
@@ -41,8 +46,9 @@ public:
   LedMatrixClass();
   
   void scanLine();
-  
-  void begin(byte latchPin_, byte resetPin_,ScreenBuffer *sb);
+  ScreenBuffer *getScreenBuffer() { return user; }
+  void swapScreenBuffer() { swapRequest = true; }
+  void begin(byte latchPin_, byte resetPin_);
   
   void dump();
   byte maxBright;
@@ -53,7 +59,6 @@ private:
   byte resetPin;
   byte row;
   byte screenCnt;
-  ScreenBuffer* screenBuffer;
 };
 
 extern LedMatrixClass LedMatrix;

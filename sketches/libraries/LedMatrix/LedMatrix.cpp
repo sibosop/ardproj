@@ -15,8 +15,8 @@ LedMatrixClass::scanLine()
   bitWrite(trans.row,row,1);
   for (int i = 0; i < 8; i++ )
   {
-    byte green = screenBuffer->buffer[row][i].green;
-    byte red = screenBuffer->buffer[row][i].red;
+    byte green = active->buffer[row][i].green;
+    byte red = active->buffer[row][i].red;
     if ( green > screenCnt )
       bitWrite(trans.green,i,1);
     
@@ -28,7 +28,16 @@ LedMatrixClass::scanLine()
   {
     row = 0;
     if ( ++screenCnt == maxBright )
+    {
       screenCnt = 0;
+      if ( swapRequest )
+      {
+        swapRequest = false;
+        ScreenBuffer *tmp = user;
+        user = active;
+        active = tmp;
+      }
+    }
   }
   #if 0
   Serial.println("scanLine");
@@ -54,14 +63,15 @@ LedMatrixClass::scanLineCallback(Task *me)
 }
 
 void 
-LedMatrixClass::begin(byte latchPin_, byte resetPin_,ScreenBuffer *sb)
+LedMatrixClass::begin(byte latchPin_, byte resetPin_)
 {
   maxBright = MAX_BRIGHT;
   latchPin = latchPin_;
   resetPin = resetPin_;
-  screenBuffer = sb;
   row = 0;
   screenCnt = 0;
+  active = &sb1;
+  user = &sb2;
   pinMode(latchPin, OUTPUT);
   pinMode(MOSI, OUTPUT); 
   pinMode(SPICLK, OUTPUT);
