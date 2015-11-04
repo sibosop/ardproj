@@ -6,6 +6,7 @@
 #include <SPI.h>
 #include <SoftTimer.h>
 #include <ScreenBuffer.h>
+#include <Pixel.h>
 
 
 #define MISO 12
@@ -43,16 +44,17 @@ public:
     ,RedPos
   } PosType;
   
-  LedMatrixClass();
   
-  void scanLine();
-  ScreenBuffer *getScreenBuffer() { return user; }
-  void swapScreenBuffer() { swapRequest = true; }
+  LedMatrixClass();
+  void clearDisplay(){user->clear();}
+  void setPixel(Pixel& p);
+  void display() { swapRequest = true; }
   void begin(byte latchPin_, byte resetPin_);
   
   void dump();
   byte maxBright;
 private:
+  void scanLine();
   void clearShiftRegisters();
   static void scanLineCallback(Task *);
   byte latchPin;

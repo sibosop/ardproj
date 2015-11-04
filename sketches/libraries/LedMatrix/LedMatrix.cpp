@@ -6,7 +6,12 @@ LedMatrixClass::LedMatrixClass()
   : Task(RefreshRate,scanLineCallback)
   {}
 
-
+void
+LedMatrixClass::setPixel(Pixel& p)
+{
+  user->buffer[p.row][p.col].red = p.red;
+  user->buffer[p.row][p.col].green = p.green;
+}
 
 void
 LedMatrixClass::scanLine()

@@ -94,6 +94,10 @@ LedClocker::displayTime(int h, int m, int s) {
 	hours = h % 12;
 	minutes = m;
 	seconds = s;
+	Serial.print("h:");Serial.print(h);
+  Serial.print(" m:");Serial.print(m);
+  Serial.print(" s:");Serial.print(s);
+  Serial.println();
 	refreshTime();
 }
 

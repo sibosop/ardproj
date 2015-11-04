@@ -14,9 +14,10 @@ int maxRand;
 int randCnt;
 int changeCnt;
 bool changeDir;
+Pixel pixel[4];
+
 void patternCallback(Task* task) {
-  screenBuffer = LedMatrix.getScreenBuffer();
-  screenBuffer->clear();
+  LedMatrix.clearDisplay();
 #if 0
   if ( ++red == 8 )
     red = 0;
@@ -43,7 +44,7 @@ void patternCallback(Task* task) {
   
 #endif
 
-#if 1
+#if 0
   //Serial.print("bright:");Serial.print(bright);
   //Serial.println();
   for (int i = 0; i < 8; i++ )
@@ -51,6 +52,9 @@ void patternCallback(Task* task) {
     for ( int j = 0; j < 8; j++ )
     {
       byte c = random(maxRand);
+      LedMatrixClass::Pixel p;
+      p.row = i;
+      p.col = j;
       switch( c )
       {
 #if 0
@@ -62,12 +66,13 @@ void patternCallback(Task* task) {
           break;
 #endif
         case 1:
-          screenBuffer->buffer[i][j].red = random(LedMatrix.maxBright);
-          screenBuffer->buffer[i][j].green = random(LedMatrix.maxBright);
+          p.red = random(LedMatrix.maxBright);
+          p.green = random(LedMatrix.maxBright);
           break;
         default:
           break;
       }
+      LedMatrix.setPixel(p);
     }
   }
   if ( (++randCnt % changeCnt) == 0 )
@@ -88,18 +93,34 @@ void patternCallback(Task* task) {
   
   
 #endif
-  LedMatrix.swapScreenBuffer();
+#if 1
+  
+  pixel[0].up();
+  pixel[0].left();
+  pixel[1].down();
+  pixel[1].right();
+  pixel[2].up();
+  pixel[2].right();
+  pixel[3].down();
+  pixel[3].left();
+  for ( int i = 0; i < 4; ++i )
+  {
+    pixel[i].red = random(LedMatrix.maxBright);
+    pixel[i].green = random(LedMatrix.maxBright);
+    LedMatrix.setPixel(pixel[i]);
+  }
+#endif
+  LedMatrix.display();
   //screenBuffer.dump();
   
 }
-Task patternTimer(100,patternCallback);
+Task patternTimer(50,patternCallback);
 
 
 
 void setup() {
   //set pins to output because they are addressed in the main loop
   LedMatrix.begin(latchPin,resetPin);
-  screenBuffer = LedMatrix.getScreenBuffer();
   Serial.begin(9600);
   SoftTimer.add(&patternTimer);
   red = 0;
@@ -111,4 +132,6 @@ void setup() {
   changeCnt = 3;
   changeDir = true;
   randomSeed(analogRead(0));
+  pixel[2].row = 7;
+  pixel[3].col = 7;
 }
