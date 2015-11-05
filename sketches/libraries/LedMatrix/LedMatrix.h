@@ -4,16 +4,16 @@
 
 #include <arduino.h>
 #include <SPI.h>
-#include <SoftTimer.h>
 #include <ScreenBuffer.h>
 #include <Pixel.h>
+#include <TimerOne.h>
 
 
 #define MISO 12
 #define MOSI 11
 #define SPICLK 13
 
-class LedMatrixClass : public Task {
+class LedMatrixClass {
 private:
     struct ColPos {
       byte green;
@@ -48,7 +48,7 @@ public:
   LedMatrixClass();
   void clearDisplay(){user->clear();}
   void setPixel(Pixel& p);
-  void display() { swapRequest = true; }
+  void display(); 
   void begin(byte latchPin_, byte resetPin_);
   
   void dump();
@@ -56,7 +56,7 @@ public:
 private:
   void scanLine();
   void clearShiftRegisters();
-  static void scanLineCallback(Task *);
+  static void scanLineCallback();
   byte latchPin;
   byte resetPin;
   byte row;

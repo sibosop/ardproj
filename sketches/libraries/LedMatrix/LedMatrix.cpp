@@ -1,9 +1,8 @@
 #include "LedMatrix.h"
-#define RefreshRate .01
+#define RefreshRate 200
 #define MAX_BRIGHT  32
 
 LedMatrixClass::LedMatrixClass()
-  : Task(RefreshRate,scanLineCallback)
   {}
 
 void
@@ -62,9 +61,17 @@ LedMatrixClass::scanLine()
 }
 
 void
-LedMatrixClass::scanLineCallback(Task *me)
+LedMatrixClass::scanLineCallback()
 {
-  ((LedMatrixClass *)me)->scanLine();
+  LedMatrix.scanLine();
+}
+
+void
+LedMatrixClass::display()
+{ 
+  noInterrupts();
+  swapRequest = true; 
+  interrupts();
 }
 
 void 
@@ -84,7 +91,8 @@ LedMatrixClass::begin(byte latchPin_, byte resetPin_)
   pinMode(MISO,INPUT);
   clearShiftRegisters();
   SPI.begin();
-  SoftTimer.add(this);
+  Timer1.initialize(RefreshRate);
+  Timer1.attachInterrupt(scanLineCallback);
 }
 
 void 
