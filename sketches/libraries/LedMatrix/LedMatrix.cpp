@@ -1,5 +1,5 @@
 #include "LedMatrix.h"
-#define RefreshRate 200
+#define RefreshRate 100
 #define MAX_BRIGHT  32
 
 LedMatrixClass::LedMatrixClass()
