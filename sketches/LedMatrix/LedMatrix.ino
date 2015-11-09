@@ -146,5 +146,5 @@ void setup() {
   randomSeed(analogRead(0));
   pixel[2].p.row = 7;
   pixel[3].p.col = 7;
-  LedMatrix.setBitMap(&test);
+ 
 }
