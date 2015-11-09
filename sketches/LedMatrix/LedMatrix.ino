@@ -15,7 +15,7 @@ int randCnt;
 int changeCnt;
 bool changeDir;
 Pixel pixel[4];
-int bCount;
+uint8_t:e bCount;
 const BitMap *bitMaps[] =
 {
   &test3
