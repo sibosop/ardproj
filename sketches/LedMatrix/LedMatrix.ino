@@ -15,6 +15,14 @@ int randCnt;
 int changeCnt;
 bool changeDir;
 Pixel pixel[4];
+int bCount;
+const BitMap *bitMaps[] =
+{
+  &test3
+  ,&test4
+  ,&test5
+  ,&test6
+};
 
 void patternCallback(Task* task) {
   LedMatrix.clearDisplay();
@@ -93,7 +101,7 @@ void patternCallback(Task* task) {
   
   
 #endif
-#if 1
+#if 0
   
   pixel[0].up();
   pixel[0].left();
@@ -105,13 +113,16 @@ void patternCallback(Task* task) {
   pixel[3].left();
   for ( int i = 0; i < 4; ++i )
   {
-    pixel[i].red = random(LedMatrix.maxBright);
-    pixel[i].green = random(LedMatrix.maxBright);
+    pixel[i].c.red = random(LedMatrix.maxBright);
+    pixel[i].c.green = random(LedMatrix.maxBright);
     LedMatrix.setPixel(pixel[i]);
   }
+  LedMatrix.display()
 #endif
-  LedMatrix.display();
+#if 1
+    LedMatrix.setBitMap(bitMaps[bCount++ % 4]);
   //screenBuffer.dump();
+#endif
   
 }
 Task patternTimer(50,patternCallback);
@@ -131,7 +142,9 @@ void setup() {
   randCnt = 0;
   changeCnt = 3;
   changeDir = true;
+  bCount = 0;
   randomSeed(analogRead(0));
-  pixel[2].row = 7;
-  pixel[3].col = 7;
+  pixel[2].p.row = 7;
+  pixel[3].p.col = 7;
+  LedMatrix.setBitMap(&test);
 }

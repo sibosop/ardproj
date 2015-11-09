@@ -1,53 +1,77 @@
 #ifndef PIXEL_H
 #define PIXEL_H
-class Pixel
+class Pos
 {
 public:
   byte row;
   byte col;
-  byte red;
-  byte green;
-  Pixel()
+  Pos(int r, int c)
+    : row(r)
+    , col(c)
+    {}
+  Pos()
     : row(0)
     , col(0)
-    , red(0)
+    {}
+};
+
+class Color
+{
+public:
+  byte red;
+  byte green;
+  Color(byte r, byte g)
+    : red(r)
+    , green(g)
+    {}
+  Color()
+    : red(0)
     , green(0)
     {}
+};
+
+
+class Pixel
+{
+public:
+  Pos p;
+  Color c;
+  
   
   bool up()
   {
-    if ( !row )
+    if ( !p.row )
     {
-      row = 7;
+      p.row = 7;
       return true;
     }
-    --row;
+    --p.row;
     return false;
   }
   bool left()
   {
-    if ( !col )
+    if ( !p.col )
     {
-      col = 7;
+      p.col = 7;
       return true;
     }
-    --col;
+    --p.col;
     return false;
   }
   bool down()
   {
-    if ( ++row == 8 )
+    if ( ++p.row == 8 )
     {
-      row = 0;
+      p.row = 0;
       return true;
     }
     return false;
   }
   bool right()
   {
-    if ( ++col == 8 )
+    if ( ++p.col == 8 )
     {   
-      col = 0;
+      p.col = 0;
       return true;
     }
     return false;

@@ -7,6 +7,7 @@
 #include <ScreenBuffer.h>
 #include <Pixel.h>
 #include <TimerOne.h>
+#include <BitMap.h>
 
 
 #define MISO 12
@@ -15,6 +16,7 @@
 
 class LedMatrixClass {
 private:
+
     struct ColPos {
       byte green;
       byte red;
@@ -32,7 +34,9 @@ private:
         Serial.println();
       }
     };
-    ColPos matrix[8];
+
+    const BitMap *userb;
+    const BitMap *activeb;
     ScreenBuffer sb1;
     ScreenBuffer sb2;
     ScreenBuffer *user;
@@ -50,9 +54,11 @@ public:
   void setPixel(Pixel& p);
   void display(); 
   void begin(byte latchPin_, byte resetPin_);
+  void setBitMap(const BitMap* b) { userb=b; }
   
   void dump();
   byte maxBright;
+  bool drawEnable;
 private:
   void scanLine();
   void clearShiftRegisters();
@@ -61,6 +67,7 @@ private:
   byte resetPin;
   byte row;
   byte screenCnt;
+  
 };
 
 extern LedMatrixClass LedMatrix;

@@ -1,5 +1,5 @@
 #include "LedMatrix.h"
-#define RefreshRate 100
+#define RefreshRate 110
 #define MAX_BRIGHT  32
 
 LedMatrixClass::LedMatrixClass()
@@ -8,8 +8,8 @@ LedMatrixClass::LedMatrixClass()
 void
 LedMatrixClass::setPixel(Pixel& p)
 {
-  user->buffer[p.row][p.col].red = p.red;
-  user->buffer[p.row][p.col].green = p.green;
+  user->buffer[p.p.row][p.p.col].red = p.c.red;
+  user->buffer[p.p.row][p.p.col].green = p.c.green;
 }
 
 void
@@ -17,15 +17,30 @@ LedMatrixClass::scanLine()
 {
   ColPos trans;
   bitWrite(trans.row,row,1);
-  for (int i = 0; i < 8; i++ )
+  if ( activeb )
   {
-    byte green = active->buffer[row][i].green;
-    byte red = active->buffer[row][i].red;
-    if ( green > screenCnt )
-      bitWrite(trans.green,i,1);
+    for (int i = 0; i < 8; i++ )
+    {
+      const uint8_t green = (*activeb)[row][i][1];
+      if ( green > screenCnt )
+        bitWrite(trans.green,i,1);
+      const uint8_t red = (*activeb)[row][i][0];
+      if ( red > screenCnt )
+        bitWrite(trans.red,i,1);
+    }
+  }
+  if ( drawEnable )
+  {
+    for (int i = 0; i < 8; i++ )
+    {
+      byte green = active->buffer[row][i].green;
+      byte red = active->buffer[row][i].red;
+      if ( green > screenCnt )
+        bitWrite(trans.green,i,1);
     
-    if ( red > screenCnt )
-      bitWrite(trans.red,i,1);
+      if ( red > screenCnt )
+        bitWrite(trans.red,i,1);
+    }
   }
   
   if (++row == 8 )
@@ -39,7 +54,12 @@ LedMatrixClass::scanLine()
         swapRequest = false;
         ScreenBuffer *tmp = user;
         user = active;
-        active = tmp;
+        active = tmp; 
+      }
+      if ( userb )
+      {
+        activeb = userb;
+        userb = 0;
       }
     }
   }
@@ -84,6 +104,9 @@ LedMatrixClass::begin(byte latchPin_, byte resetPin_)
   screenCnt = 0;
   active = &sb1;
   user = &sb2;
+  activeb = 0;
+  userb = 0;
+  drawEnable = false;
   pinMode(latchPin, OUTPUT);
   pinMode(MOSI, OUTPUT); 
   pinMode(SPICLK, OUTPUT);
@@ -93,22 +116,6 @@ LedMatrixClass::begin(byte latchPin_, byte resetPin_)
   SPI.begin();
   Timer1.initialize(RefreshRate);
   Timer1.attachInterrupt(scanLineCallback);
-}
-
-void 
-LedMatrixClass::dump()
-{
-  Serial.println("dump");
-  for (int i = 0; i < 8; ++i )
-  {
-    Serial.print(matrix[i].row,HEX);
-    Serial.print(" ");
-    Serial.print(matrix[i].red,HEX);
-    Serial.print(" ");
-    Serial.print(matrix[i].green,HEX);
-    Serial.print(" ");
-  }
-  Serial.println();
 }
 
 
