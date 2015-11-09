@@ -1,10 +1,11 @@
 #ifndef PIXEL_H
 #define PIXEL_H
+#include <stdint.h>
 class Pos
 {
 public:
-  byte row;
-  byte col;
+  uint8_t row;
+  uint8_t col;
   Pos(int r, int c)
     : row(r)
     , col(c)
@@ -13,14 +14,22 @@ public:
     : row(0)
     , col(0)
     {}
+  Pos(const Pos& p)
+    : row(p.row)
+    , col(p.col)
+    {}
+  bool operator==(const Pos& p) const
+  {
+    return (p.row==row && p.col==col);
+  }
 };
 
 class Color
 {
 public:
-  byte red;
-  byte green;
-  Color(byte r, byte g)
+  uint8_t red;
+  uint8_t green;
+  Color(uint8_t r, uint8_t g)
     : red(r)
     , green(g)
     {}
@@ -28,6 +37,10 @@ public:
     : red(0)
     , green(0)
     {}
+  operator book() const
+  {
+    return (!red && !green);
+  }
 };
 
 
