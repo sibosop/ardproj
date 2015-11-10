@@ -55,7 +55,7 @@ public:
   void display(); 
   void begin(byte latchPin_, byte resetPin_);
   void setBitMap(const BitMap* b) { userb=b; }
-  void 
+   
   
   void dump();
   byte maxBright;

@@ -37,7 +37,7 @@ public:
     : red(0)
     , green(0)
     {}
-  operator book() const
+  operator bool() const
   {
     return (!red && !green);
   }
