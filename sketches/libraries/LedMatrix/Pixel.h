@@ -29,17 +29,62 @@ class Color
 public:
   uint8_t red;
   uint8_t green;
+  bool pulseDim;
   Color(uint8_t r, uint8_t g)
     : red(r)
     , green(g)
+    , pulseDim(false)
     {}
   Color()
     : red(0)
     , green(0)
     {}
-  operator bool() const
+  inline operator bool() const
   {
     return (!red && !green);
+  }
+  inline bool dim()
+  {
+    if ( !red && !green )
+      return false;
+       
+    if ( red == 1 || green == 1 )
+    {
+      return false;
+    }
+    
+    if ( red )
+      --red;
+      
+    if ( green )
+      --green;
+    return true;
+  }
+  
+  inline bool brighten()
+  {
+    if ( !red && !green )
+      return false;
+       
+    if ( red == 0x1f || green == 0x1f )
+    {
+      return false;
+    }
+    
+    if ( red )
+      ++red;
+      
+    if ( green )
+      ++green;
+    return true;
+  }
+  
+  inline void pulse()
+  {
+    if (pulseDim)
+      pulseDim = dim();
+    else
+      pulseDim = !brighten();
   }
 };
 
@@ -49,7 +94,11 @@ class Pixel
 public:
   Pos p;
   Color c;
-  
+  Pixel() {}
+  Pixel(const Pos& p_, const Color& c_)
+    : p(p_)
+    , c(c_)
+    {}
   
   bool up()
   {
