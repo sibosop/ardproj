@@ -1,17 +1,9 @@
 
 #include <SoftTimer.h>
 #include <LedMatrix.h>
-#include <Fly.h>
-#include <Trap.h>
 
 const int latchPin = 4;
 const int resetPin = 5;
-const int flyCount = 4;
-
-Fly flies[flyCount];
-Trap trap;
-const int numPixels = 64;
-Pixel pixels[numPixels]; 
 uint8_t coff = 0;
 uint8_t boff = 0;
 void patternCallback(Task* task) {
