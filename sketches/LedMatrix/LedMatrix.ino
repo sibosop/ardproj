@@ -12,8 +12,8 @@ Fly flies[flyCount];
 Trap trap;
 const int numPixels = 64;
 Pixel pixels[numPixels]; 
-int coff = 0;
-int boff = 0;
+uint8_t coff = 0;
+uint8_t boff = 0;
 void patternCallback(Task* task) {
   LedMatrix.clearDisplay();
   int color = coff;
@@ -32,15 +32,18 @@ void patternCallback(Task* task) {
       }
     }
   }
-  if ( ++boff == 16 )
+  if ( !boff )
   {
+    coff = (--coff % 4);
+    boff = 8;
+  } 
+  else
+  { 
     boff = 0;
-    if ( ++coff == Color::MaxColors )
-      coff = 0;
   }
   LedMatrix.display();
 }
-Task patternTimer(1000,patternCallback);
+Task patternTimer(80,patternCallback);
 
 
 
