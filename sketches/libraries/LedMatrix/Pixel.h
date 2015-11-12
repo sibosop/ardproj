@@ -27,6 +27,9 @@ public:
 class Color
 {
 public:
+  enum Colors {
+    Red,Green,Orange,Yellow,MaxColors
+    };
   uint8_t red;
   uint8_t green;
   bool pulseDim;
@@ -39,6 +42,7 @@ public:
     : red(0)
     , green(0)
     {}
+  static const Color palette[MaxColors][16];
   inline operator bool() const
   {
     return (!red && !green);

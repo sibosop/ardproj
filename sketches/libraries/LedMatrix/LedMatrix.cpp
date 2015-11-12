@@ -2,6 +2,38 @@
 #define RefreshRate 80
 #define MAX_BRIGHT  32
 
+const Color Color::palette[Color::MaxColors][16] =
+{
+  {
+    Color(1,0),Color(2,0),Color(3,0),Color(4,0)
+    ,Color(5,0),Color(6,0),Color(7,0),Color(8,0)
+    ,Color(9,0),Color(10,0),Color(11,0),Color(12,0)
+    ,Color(13,0),Color(14,0),Color(15,0),Color(16,0)
+  },
+  
+  {
+    Color(0,1),Color(0,3),Color(0,5),Color(0,7)
+    ,Color(0,9),Color(0,11),Color(0,13),Color(0,15)
+    ,Color(0,17),Color(0,19),Color(0,21),Color(0,23)
+    ,Color(0,25),Color(0,27),Color(0,29),Color(0,31)
+  },
+    
+  {
+    Color(1,1),Color(2,2),Color(3,3),Color(4,4)
+    ,Color(5,5),Color(6,6),Color(7,7),Color(8,8)
+    ,Color(9,9),Color(10,10),Color(11,11),Color(12,12)
+    ,Color(13,13),Color(14,14),Color(15,15),Color(16,16)
+  },
+
+  {
+    Color(1,2),Color(2,4),Color(3,6),Color(4,8)
+    ,Color(5,10),Color(6,12),Color(7,14),Color(8,16)
+    ,Color(9,18),Color(10,20),Color(11,22),Color(12,24)
+    ,Color(13,26),Color(14,28),Color(15,30),Color(16,31)
+  }
+};
+
+
 LedMatrixClass::LedMatrixClass()
   {}
 
