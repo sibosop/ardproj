@@ -49,16 +49,17 @@ LedMatrixClass::scanLine()
 {
   ColPos trans;
   bitWrite(trans.row,row,1);
-
+  uint8_t mask = 1;
   for (int i = 0; i < 8; i++ )
   {
     byte green = active->buffer[row][i].g;
     byte red = active->buffer[row][i].r;
     if ( green > screenCnt )
-      bitWrite(trans.green,i,1);
+      trans.green |= mask;
   
     if ( red > screenCnt )
-      bitWrite(trans.red,i,1);
+      trans.red |= mask;
+    mask <<= 1;
   }
   
   if (++row == 8 )
