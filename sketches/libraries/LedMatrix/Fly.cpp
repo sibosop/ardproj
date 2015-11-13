@@ -1,3 +1,4 @@
+#if 0
 #include "LedMatrix.h"
 #include "Fly.h"
 
@@ -57,3 +58,4 @@ Fly::move()
   }
   LedMatrix.setPixel(pixel); 
 }
+#endif

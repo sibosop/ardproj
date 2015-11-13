@@ -1,3 +1,4 @@
+#if 0
 #ifndef FLY_H
 #define FLY_H
 #include "Pixel.h"
@@ -23,4 +24,5 @@ private:
   uint8_t id;
   uint8_t count;
 };
+#endif
 #endif

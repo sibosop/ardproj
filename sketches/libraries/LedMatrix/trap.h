@@ -1,3 +1,4 @@
+#if 0
 #ifndef TRAP_H
 #define TRAP_H
 class Trap {
@@ -15,4 +16,5 @@ private:
   unsigned int swap;
   unsigned int offset;
 };
+#endif
 #endif

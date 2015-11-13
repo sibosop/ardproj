@@ -1,3 +1,4 @@
+#if 0
 #include "LedMatrix.h"
 #include "trap.h"
 
@@ -43,3 +44,4 @@ Trap::display()
     LedMatrix.setPixel(p);
   }
 }
+#endif

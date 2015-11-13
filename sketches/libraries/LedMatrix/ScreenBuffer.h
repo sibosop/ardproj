@@ -3,7 +3,7 @@
 #include "Pixel.h"
 class ScreenBuffer {
 public:
-    Color buffer[8][8];
+    PaletteColor buffer[8][8];
     ScreenBuffer()
     {
       clear();
