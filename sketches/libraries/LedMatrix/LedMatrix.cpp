@@ -2,7 +2,7 @@
 #define RefreshRate 80
 #define MAX_BRIGHT  32
 
-const PaletteColor Color::palette[Color::MaxColors][16] =
+const PaletteColor LedMatrixClass::palette[Color::MaxColors][16] =
 {
   {
     PaletteColor(1,0),PaletteColor(2,0),PaletteColor(3,0),PaletteColor(4,0)
@@ -41,7 +41,25 @@ void
 LedMatrixClass::setPixel(Pixel& p)
 {
   if (p.c.color != Color::NullColor )
-    user->buffer[p.p.row][p.p.col] = Color::palette[p.c.color][p.c.bright];
+    user->buffer[p.p.row][p.p.col] = palette[p.c.color][p.c.bright];
+}
+
+void
+LedMatrixClass::drawPosMap(const Pos* pm, Color c, int offset, int chaos)
+{
+  while ( pm->row != 0xff)
+  {
+    Pixel p(*pm,c);
+    p.p.col += offset ;
+    if ( chaos )
+      p.p.col += random(chaos);
+    p.p.col = p.p.col % 8;
+    if ( chaos )
+      p.p.row += random(chaos);
+    p.p.row = p.p.row % 8;
+    setPixel(p);
+    ++pm;
+  }
 }
 
 void

@@ -16,7 +16,7 @@
 
 class LedMatrixClass {
 private:
-
+    static const PaletteColor palette[Color::MaxColors][16];
     struct ColPos {
       byte green;
       byte red;
@@ -52,7 +52,7 @@ public:
   void setPixel(Pixel& p);
   void display(); 
   void begin(byte latchPin_, byte resetPin_);
-   
+  void drawPosMap(const Pos*,Color c, int offset=0, int chaos = 1);
   
   void dump();
   byte maxBright;

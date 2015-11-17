@@ -24,6 +24,8 @@ public:
   }
 };
 
+extern const Pos *  number[10] ;
+
 class PaletteColor 
 {
 public:
@@ -60,7 +62,7 @@ public:
     , bright(0)
     {}
     
-  static const PaletteColor palette[MaxColors][16];
+  
   
   inline bool dim()
   {

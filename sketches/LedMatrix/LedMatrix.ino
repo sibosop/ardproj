@@ -5,7 +5,10 @@
 const int latchPin = 4;
 const int resetPin = 5;
 uint8_t coff = 0;
-uint8_t boff = 0;
+uint8_t boff1 = 0;
+uint8_t boff2 = 0;
+uint8_t wcnt = 0;
+uint8_t clr = 0;
 bool up;
 
 
@@ -27,66 +30,40 @@ void fillRect(Pos ul, Pos lr, Color col)
 
 void patternCallback(Task* task) {
   LedMatrix.clearDisplay();
-#if 1
-  if ( up )
+  if ( !wcnt )
   {
-    if (boff == 15)
-      up = false;
-    else
-      ++boff;
-  } 
-  else
-  {
-    if ( boff == 0 )
+    if (up)
     {
-      ++coff;
-      up = true;
-    }
-    else
-      --boff;
-  }
-  
-#endif
-  
-  
-  Serial.println(boff);
-  fillRect(Pos(0,0),Pos(4,4),Color((Color::Colors)((coff+3) % 4),boff));
-  fillRect(Pos(0,4),Pos(4,8),Color((Color::Colors)((coff+2) % 4),boff));
-  fillRect(Pos(4,4),Pos(8,8),Color((Color::Colors)((coff+1) % 4),boff));
-  fillRect(Pos(4,0),Pos(8,4),Color((Color::Colors)((coff+0) % 4),boff));
-  
-  
-#if 0
-  int color = coff;
-  int bright = boff;
-  for ( int r = 0; r < 8; r++ )
-  {
-    for (int c = 0; c < 8; c++ )
-    {
-      Pixel p(Pos(r,c),Color((Color::Colors)color,bright));
-      LedMatrix.setPixel(p);
-      if ( ++bright == 16 )
+      if (++coff == 7)
       {
-        bright = 0;
-        if (++color == Color::MaxColors)
-          color = 0;
+        up = false;
+        clr = random(Color::MaxColors);
+      }
+    } 
+    else
+    {
+      if ( --coff == 0 )
+      {
+        up = true;
+        boff1 = random(10);
+        boff2 = random(10); 
+        wcnt = 50;
+        
       }
     }
   }
-  if ( !boff )
-  {
-    coff = (--coff % 4);
-    boff = 8;
-  } 
   else
-  { 
-    boff = 0;
+  {
+    --wcnt;
   }
-#endif
 
+  //Serial.println(coff);
+  fillRect(Pos(0,0),Pos(8,8),Color((Color::Colors)clr,coff));
+  LedMatrix.drawPosMap(number[boff1],Color((Color::Colors)(3-clr),15),1,coff);
+  LedMatrix.drawPosMap(number[boff2],Color((Color::Colors)(3-clr),15),5,coff);
   LedMatrix.display();
 }
-Task patternTimer(30,patternCallback);
+Task patternTimer(50,patternCallback);
 
 
 
@@ -97,7 +74,6 @@ void setup() {
   SoftTimer.add(&patternTimer);
   randomSeed(analogRead(0));
   LedMatrix.drawEnable = true;
-  boff = 0;
   coff = 0;
   up = true;
 }
