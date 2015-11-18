@@ -68,14 +68,13 @@ LedMatrixClass::scanLine()
   ColPos trans;
   bitWrite(trans.row,row,1);
   uint8_t mask = 1;
-  for (int i = 0; i < 8; i++ )
+  PaletteColor *pcp = active->buffer[row];
+  for (int i = 0; i < 8; i++, pcp++ )
   {
-    byte green = active->buffer[row][i].g;
-    byte red = active->buffer[row][i].r;
-    if ( green > screenCnt )
+    if ( pcp->g > screenCnt )
       trans.green |= mask;
   
-    if ( red > screenCnt )
+    if ( pcp->r > screenCnt )
       trans.red |= mask;
     mask <<= 1;
   }
