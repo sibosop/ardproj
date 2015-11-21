@@ -100,13 +100,12 @@ LedMatrixClass::scanLine()
   dump();
   #endif
   //trans.dump();
+  SPI.beginTransaction(SPISettings(14000000, MSBFIRST, SPI_MODE0));
   clearShiftRegisters();
   digitalWrite(latchPin, LOW);
-  //digitalWrite(clockPin, LOW);
-  SPI.beginTransaction(SPISettings(14000000, MSBFIRST, SPI_MODE0));
   SPI.transfer(&trans,3);
-  SPI.endTransaction();
   digitalWrite(latchPin, HIGH);
+  SPI.endTransaction();
   #if 0
   dump();
   #endif
@@ -142,7 +141,7 @@ LedMatrixClass::begin(byte latchPin_, byte resetPin_)
   pinMode(resetPin, OUTPUT);
   pinMode(MISO,INPUT);
   clearShiftRegisters();
-  SPI.begin();
+  
   Timer1.initialize(RefreshRate);
   Timer1.attachInterrupt(scanLineCallback);
 }

@@ -1,18 +1,23 @@
 #include <SPI.h>
 #include "RTC.h"
-#include "Adafruit_WS2801.h"
-#include "LedClocker.h"
 #include "SoftTimer.h"
+#include "General.h"
 
 #define RTC_CHIP_SELECT	8
 
 #define MINUTE_BUTTON 5
 #define HOUR_BUTTON 6
-#define MODE_BUTTON 7
 
 
+void
+displayTime(uint8_t h, uint8_t m, uint8_t s)
+{
+  DUMP(h);
+  DUMP(m);
+  DUMP(s);
+  Serial.println();
+}
 
-Adafruit_WS2801  strip(LedClocker::NumPixels,LedClocker::DataPin,LedClocker::ClockPin);
 
 
 volatile int state = LOW;
@@ -45,7 +50,7 @@ void
 tick() {
   if ( !tickDisable ) {
     Rtc.refresh();
-    Display.displayTime(Rtc.hour,Rtc.minute,Rtc.second); 
+    displayTime(Rtc.hour,Rtc.minute,Rtc.second); 
   } else {
     if ( !disableCount || !--disableCount ) 
       tickDisable = false;
@@ -59,6 +64,7 @@ uint8_t  minuteTimer,minuteCount,hourTimer,modeTimer;
 void
 buttonReaderCallback(Task* task) {
   if ( !digitalRead(MINUTE_BUTTON) ) {
+    
     if ( !--minuteTimer ) {
       tickDisable = true;
       disableCount = 5;
@@ -70,7 +76,7 @@ buttonReaderCallback(Task* task) {
        }
        Rtc.setTimeDate(0,0,0,Rtc.hour,Rtc.minute+1==60?0:Rtc.minute+1,0);
        Rtc.refresh();
-       Display.displayTime(Rtc.hour,Rtc.minute,Rtc.second);
+       displayTime(Rtc.hour,Rtc.minute,Rtc.second);
     }
   } else {
     minuteCount = 0;
@@ -78,24 +84,17 @@ buttonReaderCallback(Task* task) {
   }
 
   if ( !digitalRead(HOUR_BUTTON) ) {
+
     if ( !--hourTimer ) {
       tickDisable = true;
       disableCount = 5;
       hourTimer = SLOW_TIME;
       Rtc.setTimeDate(0,0,0,Rtc.hour+1==12?0:Rtc.hour+1,Rtc.minute,0);
       Rtc.refresh();
-      Display.displayTime(Rtc.hour,Rtc.minute,Rtc.second);
+      displayTime(Rtc.hour,Rtc.minute,Rtc.second);
     }
   } else {
     hourTimer = 1;
-  }
-  
-  if ( !digitalRead(MODE_BUTTON) ) {
-    if ( !--modeTimer ) {
-      modeTimer = SLOW_TIME;
-    }
-  } else {
-    modeTimer = 1;
   }
 }
 
@@ -121,15 +120,11 @@ setup() {
   minuteTimer=hourTimer=modeTimer = 1;
   minuteCount=SLOW_TIME;
   Serial.begin(9600);
-  strip.begin();
-  strip.show();
-  Display.init(&strip);
   Rtc.init(RTC_CHIP_SELECT);
   //Rtc.setTimeDate( 11,12,13,10,15,00 ); 
   pinMode(2,INPUT);
-  pinMode(MINUTE_BUTTON,INPUT);
-  pinMode(HOUR_BUTTON,INPUT);
-  pinMode(MODE_BUTTON,INPUT); 
+  pinMode(MINUTE_BUTTON,INPUT_PULLUP);
+  pinMode(HOUR_BUTTON,INPUT_PULLUP);
   attachInterrupt(0,tick,RISING);
   SoftTimer.add(&serialTimer);
   SoftTimer.add(&buttonTimer);
