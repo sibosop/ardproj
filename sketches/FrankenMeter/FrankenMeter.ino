@@ -3,13 +3,22 @@
 #include "RTC.h"
 #include "FrankenClocker.h"
 #include "SoftTimer.h"
+#include "General.h"
 
 
 #define RTC_INTERRUPT 2
-#define METER_PIN 9				
+#define CLOCK_LIGHT 3
 #define MINUTE_BUTTON 5
 #define HOUR_BUTTON 6
 #define RTC_CHIP_SELECT	8
+#define METER_PIN 9				
+
+
+
+
+#define LIGHT_SENSOR A0
+
+int limit = 45;
 
 // RTC clock:
 // 	SCLK-> 13
@@ -41,7 +50,19 @@ doCommand(const String& i) {
 				return;
       }	
 		}
+		
 		break;
+		
+		case 'l':
+		{
+      test = sscanf(b,"%c %d",&dummy,&limit);
+      if ( test != 2 ) {
+				Serial.println(": Illegal Time");
+				return;
+			}
+    }
+    break;
+    
   }
   Serial.println(" OK");
 }
@@ -63,6 +84,18 @@ tick() {
 #define FAST_TIME 50
 #define SLOW_TIME 100
 uint8_t  minuteTimer,minuteCount,hourTimer,modeTimer;
+
+void
+sensorCallback(Task* task) {
+  int val = analogRead(LIGHT_SENSOR)/4;
+  //DUMP(val);
+  //DUMP(limit);
+  if ( val > limit )
+    analogWrite(CLOCK_LIGHT,0);
+  else
+    analogWrite(CLOCK_LIGHT,255-val);
+  
+}
 
 void
 buttonReaderCallback(Task* task) {
@@ -117,7 +150,7 @@ void serialReaderCallback(Task* task) {
     }
   }
 }
-
+Task sensorTimer(100,sensorCallback);
 Task serialTimer(10,serialReaderCallback);
 Task buttonTimer(3,buttonReaderCallback);
 
@@ -129,6 +162,7 @@ setup() {
   minuteCount=SLOW_TIME;
   Serial.begin(9600);
   Rtc.init(RTC_CHIP_SELECT);
+  pinMode(CLOCK_LIGHT,OUTPUT);
   pinMode(RTC_INTERRUPT,INPUT);
   pinMode(MINUTE_BUTTON,INPUT_PULLUP);
   pinMode(HOUR_BUTTON,INPUT_PULLUP);
@@ -136,5 +170,6 @@ setup() {
   attachInterrupt(0,tick,RISING);
   SoftTimer.add(&buttonTimer);
 	SoftTimer.add(&serialTimer);
+	SoftTimer.add(&sensorTimer);
   tickDisable = false;
 }

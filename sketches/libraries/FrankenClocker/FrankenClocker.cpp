@@ -45,8 +45,8 @@ FrankenClockerClass::displayHour(int h)
   h = h % 12;
   if ( h == 0 )
     h = 12;
-  Serial.print("hour val: ");
-  Serial.println(h);
+  //Serial.print("hour val: ");
+  //Serial.println(h);
   float v = (256.0 / 12.0 ) * h;
   v -= 5.0;
   Serial.print("v: ");
@@ -58,11 +58,11 @@ FrankenClockerClass::displayHour(int h)
 void
 FrankenClockerClass::displayMinute(int m)
 {
-  Serial.print("minute val: ");
-  Serial.println(m);
+  //Serial.print("minute val: ");
+  //Serial.println(m);
   float v = (256.0 / 120.0) * m;
-  Serial.print("v: ");
-  Serial.println(v);
+  //Serial.print("v: ");
+  //Serial.println(v);
   if ( v > 5.0 )
     v -= 5.0;
   analogWrite(meterPin,v);
@@ -73,10 +73,10 @@ void
 FrankenClockerClass::setMeter(float meterVal)
 {
   uint8_t v = (uint8_t )meterVal;
-  Serial.print("meterVal:");
-  Serial.println(meterVal);
-  Serial.print("v:");
-  Serial.println(v);
+  //Serial.print("meterVal:");
+  //Serial.println(meterVal);
+  //Serial.print("v:");
+  //Serial.println(v);
   analogWrite(meterPin,v);
 }
 FrankenClockerClass FrankenClocker;
