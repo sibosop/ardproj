@@ -1,9 +1,13 @@
 
 #include <SoftTimer.h>
-#include <LedMatrix.h>
 #include <SPI.h>
-#include "RTC.h"
-#include "SoftTimer.h"
+#include <NixieCtrl.h>
+#include <General.h>
+#include <RTC.h>
+
+const int nixieLatchPin = 10;
+const int nixieEnablePin = 9;
+
 
 
 #define RTC_INTERRUPT 2			
@@ -11,113 +15,37 @@
 #define HOUR_BUTTON 6
 #define RTC_CHIP_SELECT	8
 
-const int latchPin = 3;
-const int resetPin = 4;
-uint8_t coff = 0;
-uint8_t val = 0;
-bool animate = false;
-uint8_t clr = 0;
-uint8_t bbright;
-bool up;
-bool left;
-uint8_t displayCount;
+NixieCtrl nixieCtrl(nixieLatchPin,nixieEnablePin);
 
 
-void fillRect(Pos ul, Pos lr, Color col)
-{
-  //Serial.println("enter");
-  for ( int r = ul.row; r < lr.row; ++r )
-  {
-    for ( int c = ul.col; c < lr.col; ++c )
-    {
-      Pixel p(Pos(r,c),col);
-      LedMatrix.setPixel(p);
-    }
-  }
-  //Serial.println("exit");
-}
-
-void
-putNumber(int num,Color c,int chaos,bool left)
-{
-  int ten = num/10;
-  int one = num % 10;
-  LedMatrix.drawPosMap(number[ten],c,left ? 0 : 1,chaos);
-  LedMatrix.drawPosMap(number[one],c,left ? 4 : 5,chaos);
-}
 
 void
 displayMinute(uint8_t minute)
 {
-  //Serial.print("m:");Serial.println(minute);
-  val = minute;
-  left = true;
+  //DUMP(minute);
+  
+  nixieCtrl.set(1,minute/10);
+  nixieCtrl.set(0,minute%10);
 }
 
 void
 displayHour(uint8_t hour)
 {
-  //Serial.print("m:");Serial.println(hour);
-  left = false;
+  //DUMP(hour);
   hour %= 12;
-  val = (hour ? hour : 12);
+  if ( hour == 0)
+    hour = 12;
+  nixieCtrl.set(3,hour/10);
+  nixieCtrl.set(2,hour%10);
 }
 
 void
 displayTime(uint8_t hour,uint8_t minute,uint8_t second)
 {
-  if ( --displayCount )
-    return;
-  displayCount = 2;
-  if ( left )
-  {
-    displayHour(hour);
-  }
-  else
-  {
-    displayMinute(minute);
-  }
-  animate = true;
+  displayHour(hour);
+  displayMinute(minute);
 }
 
-
-
-void patternCallback(Task* task) {
-  LedMatrix.clearDisplay();
-  if ( animate )
-  {
-    if (up)
-    {
-      if (++coff == 7)
-      {
-        up = false;
-        clr = random(Color::MaxColors);
-      }
-    } 
-    else
-    {
-      if ( --coff == 0 )
-      {
-        up = true;
-        animate = false;
-      }
-    }
-    //bbright = coff;
-  }
-  else
-  {
-    //bbright = 2;
-  }
-  bbright = 2;
-
-  //Serial.println(coff);
-  fillRect(Pos(0,0),Pos(8,8),Color((Color::Colors)clr,bbright));
-  putNumber(val,Color((Color::Colors)(3-clr),15),coff,left);
-  LedMatrix.display();
-}
-Task patternTimer(50,patternCallback);
-
-volatile int state = LOW;
 void 
 doCommand(const String& i) {
   char b[100];
@@ -141,9 +69,9 @@ doCommand(const String& i) {
 				Serial.println(": Illegal Time");
 				return;
       }	
-      noInterrupts();
+      //noInterrupts();
       bool rval = Rtc.setTimeDate(0,0,0,h,m,0);
-      interrupts();
+      //interrupts();
       if (!rval)
       {
         Serial.println(": RTC can't set Time");
@@ -157,6 +85,7 @@ doCommand(const String& i) {
 
 boolean tickDisable;
 uint8_t  disableCount;
+
 
 // this is in the clock interrupt. 
 // Interrupts will be disabled
@@ -174,7 +103,7 @@ void
 buttonReaderCallback(Task* task) {
   if ( gotTick )
   {
-    noInterrupts();
+    //noInterrupts();
     gotTick = false;
     if ( !tickDisable ) {
       Rtc.refresh();
@@ -183,7 +112,7 @@ buttonReaderCallback(Task* task) {
       if ( !disableCount || !--disableCount ) 
         tickDisable = false;
     }
-    interrupts();
+    //interrupts();
   }
   if ( !digitalRead(MINUTE_BUTTON) ) {
     if ( !--minuteTimer ) {
@@ -195,10 +124,10 @@ buttonReaderCallback(Task* task) {
        } else {
         minuteTimer = FAST_TIME;
        }
-       noInterrupts();
+       //noInterrupts();
        Rtc.setTimeDate(0,0,0,Rtc.hour,Rtc.minute+1==60?0:Rtc.minute+1,0);
        Rtc.refresh();
-       interrupts();
+       //interrupts();
        displayMinute(Rtc.minute);
     }
   } else {
@@ -211,10 +140,10 @@ buttonReaderCallback(Task* task) {
       tickDisable = true;
       disableCount = 5;
       hourTimer = SLOW_TIME;
-      noInterrupts();
+      //noInterrupts();
       Rtc.setTimeDate(0,0,0,Rtc.hour+1==12?0:Rtc.hour+1,Rtc.minute,0);
       Rtc.refresh();
-      interrupts();
+      //interrupts();
       displayHour(Rtc.hour);
     }
   } else {
@@ -246,36 +175,25 @@ Task buttonTimer(3,buttonReaderCallback);
 
 void setup() {
   Serial.begin(9600);
+  randomSeed(analogRead(A4));
   // done in RTC
   //SPI.begin(); 
   minuteTimer=hourTimer=modeTimer = 1;
   minuteCount=SLOW_TIME;
   pinMode(RTC_INTERRUPT,INPUT);
-  
-  
   pinMode(MINUTE_BUTTON,INPUT_PULLUP);
   pinMode(HOUR_BUTTON,INPUT_PULLUP);
   
+  displayMinute(0);
+  displayHour(0);
+  
   Rtc.init(RTC_CHIP_SELECT);
   gotTick = false;
-#if 1
-  //set pins to output because they are addressed in the main loop
-  LedMatrix.begin(latchPin,resetPin);
-  randomSeed(analogRead(0));
-  LedMatrix.drawEnable = true;
-  coff = 0;
-  up = true;
-  animate = false;
-  val = 0;
-  clr = 0;
-  left = false;
-  bbright = 0;
-  displayCount = 2;
-#endif
 
+  
   attachInterrupt(0,tick,RISING);
   SoftTimer.add(&buttonTimer);
 	SoftTimer.add(&serialTimer);
-	SoftTimer.add(&patternTimer);
   tickDisable = false;
+  nixieCtrl.init();
 }
