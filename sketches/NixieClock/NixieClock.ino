@@ -11,9 +11,12 @@ const int nixieEnablePin = 9;
 
 
 #define RTC_INTERRUPT 2			
+#define METER_PIN 3
 #define MINUTE_BUTTON 5
 #define HOUR_BUTTON 6
 #define RTC_CHIP_SELECT	8
+
+
 
 NixieCtrl nixieCtrl(nixieLatchPin,nixieEnablePin);
 
@@ -39,11 +42,18 @@ displayHour(uint8_t hour)
   nixieCtrl.set(2,hour%10);
 }
 
+
+void
+displaySecond(uint8_t second)
+{
+  analogWrite(METER_PIN, second);
+}
 void
 displayTime(uint8_t hour,uint8_t minute,uint8_t second)
 {
   displayHour(hour);
   displayMinute(minute);
+  displaySecond(second);
 }
 
 void 
@@ -183,6 +193,7 @@ void setup() {
   pinMode(RTC_INTERRUPT,INPUT);
   pinMode(MINUTE_BUTTON,INPUT_PULLUP);
   pinMode(HOUR_BUTTON,INPUT_PULLUP);
+  pinMode(METER_PIN,OUTPUT);
   
   displayMinute(0);
   displayHour(0);
