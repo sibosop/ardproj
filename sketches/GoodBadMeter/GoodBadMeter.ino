@@ -16,8 +16,8 @@ makeChoice()
 {
   uint8_t val = random(256);
   bool dir = random(100) > 50;
-  DUMP(val);
-  DUMP(dir);
+  //DUMP(val);
+  //DUMP(dir);
   if ( dir )
   {
     digitalWrite(Dir1Pin,LOW);
