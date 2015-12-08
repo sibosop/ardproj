@@ -14,6 +14,7 @@ int choiceTimer;
 void
 makeChoice()
 {
+  //uint8_t val = 255;
   uint8_t val = random(256);
   bool dir = random(100) > 50;
   //DUMP(val);
