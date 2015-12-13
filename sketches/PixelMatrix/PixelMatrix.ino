@@ -77,7 +77,7 @@ void ledTimerCallback(Task* task) {
   if (changed)
      strip.show();
 }
-Task ledTimer(.1,ledTimerCallback);
+Task ledTimer(100,ledTimerCallback);
 
 volatile int state = LOW;
 void 
