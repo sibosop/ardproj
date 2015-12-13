@@ -2,7 +2,7 @@
 #include <SPI.h>
 #include "RTC.h"
 #include "General.h"
-#include "Adafruit_WS2801.h"
+
 #include "SoftTimer.h"
 #include "RgbScreenBuffer.h"
 // RTC clock:
@@ -21,61 +21,41 @@ static const uint8_t clockPin = 9;    // Green wire on Adafruit Pixels
 #define HOUR_BUTTON 6
 #define RTC_CHIP_SELECT	8
 #define NUM_BALLS 50
-// Don't forget to connect the ground wire to Arduino ground,
-// and the +5V wire to a +5V supply
-// Set the first variable to the NUMBER of pixels. 25 = 25 pixels in a row
-Adafruit_WS2801 strip = Adafruit_WS2801(NUM_BALLS, dataPin, clockPin);
 
-RgbScreenBuffer rsb;
-
-
-void
-displayTime(uint8_t h, uint8_t m, uint8_t s)
-{
-  
-}
+RgbScreenBuffer rsb(dataPin,clockPin);
 
 uint8_t row;
 uint8_t col;
-
-void ledTimerCallback(Task* task) {
-  bool changed = false;
-  
+void
+displayTime(uint8_t h, uint8_t m, uint8_t s)
+{
   rsb.clear();
-  if ( ++col == rsb.cols )
+  Pos p(row,col);
+  RgbPixel px(random(255),random(255),random(255));
+  rsb.setPixel(p,px);
+  rsb.show();
+  if (++col == rsb.cols)
   {
     col = 0;
     if ( ++row == rsb.rows )
       row = 0;
   }
+}
+
+
+
+void ledTimerCallback(Task* task) {
+  rsb.clear();
   Pos p(row,col);
   RgbPixel px(random(255),random(255),random(255));
   rsb.setPixel(p,px);
-  for ( int i = 0; i < NUM_BALLS; ++i )
+  rsb.show();
+  if (++col == rsb.cols)
   {
-    strip.setPixelColor(i,0);
+    col = 0;
+    if ( ++row == rsb.rows )
+      row = 0;
   }
-  for ( uint16_t r=0; r < rsb.rows; ++r )
-  {
-    for ( uint16_t c=0; c < rsb.cols; ++c )
-    {
-      if ( r == p.row && c == p.col )
-      {
-        //DUMP(r);
-        //DUMP(c);
-        uint16_t n;
-        uint32_t val;
-        rsb.get(r,c,n,val);
-        //DUMP(n);
-        //HDUMP(val);
-        strip.setPixelColor(n,val);
-      }
-    }
-    changed = true;
-  }
-  
-  if (changed)
-     strip.show();
 }
 Task ledTimer(100,ledTimerCallback);
 
@@ -235,17 +215,17 @@ setup() {
   minuteTimer=hourTimer=modeTimer = 1;
   minuteCount=SLOW_TIME;
   Serial.begin(9600);
-  strip.begin();
-  rsb.begin();
+  
+  
   Rtc.init(RTC_CHIP_SELECT);
   
   pinMode(RTC_INTERRUPT,INPUT);
   pinMode(MINUTE_BUTTON,INPUT_PULLUP);
   pinMode(HOUR_BUTTON,INPUT_PULLUP);
   attachInterrupt(0,tick,RISING);
-
+  rsb.begin();
   SoftTimer.add(&buttonTimer);
-	SoftTimer.add(&ledTimer);
+	//SoftTimer.add(&ledTimer);
 	SoftTimer.add(&serialTimer);
   tickDisable = false;
   row = col = 0;

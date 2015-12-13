@@ -3,6 +3,7 @@
 #include <string.h>
 #include <Pos.h>
 #include <General.h>
+#include "Adafruit_WS2801.h"
 class RgbPixel
 {
 public:
@@ -25,13 +26,29 @@ class RgbScreenBuffer
 public:
   static const int rows = 5;
   static const int cols = 10;
-  void clear()
+  RgbScreenBuffer(uint8_t dataPin, uint8_t clockPin);
+  inline void clear()
   {
-    memset(buffer,0,sizeof(buffer));
+    for ( int i = 0; i < (rows*cols); ++i )
+    {
+      strip.setPixelColor(i,0);
+    }
+    changed = true;
   }
-  void setPixel(const Pos& pos, const RgbPixel& px)
+  inline void setPixel(const Pos& pos, const RgbPixel& px)
   {
-    buffer[pos.row % rows][pos.col % cols] = px;
+    uint16_t n;
+    if ( pos.col % 2 )
+    {
+      n = (rows - (pos.row+1)) + pos.col*rows;
+    }
+    else
+    {
+      n = pos.row+ pos.col*rows;
+    }
+    uint32_t val = ((uint32_t)px.r << 16) | ((uint16_t)px.g << 8) | px.b;
+    strip.setPixelColor(n,val);
+    changed = true;
     
     //DUMP(pos.row % rows);
     //DUMP(pos.col % cols);
@@ -39,23 +56,25 @@ public:
     //DUMP(buffer[pos.row % rows][pos.col % cols].g);
     //DUMP(buffer[pos.row % rows][pos.col % cols].b);
   }
-  void get(uint8_t r, uint8_t c, uint16_t& n, uint32_t& val)
-  {
-    if ( c % 2 )
-    {
-      n = (rows - (r+1)) + c*rows;
-    }
-    else
-    {
-      n = r + c*rows;
-    }
-    RgbPixel p = buffer[r][c];
-    val = ((uint32_t)p.r << 16) | ((uint16_t)p.g << 8) | p.b;
-  }
+  
   void begin()
   {
+    strip.begin();
+    changed = false;
     clear();
   }
-  RgbPixel buffer[rows][cols];  
+  
+  void show()
+  {
+    if ( changed )
+    {
+      strip.show();
+      changed = false;
+    }
+  }
+  //RgbPixel buffer[rows][cols];  
+private:
+  Adafruit_WS2801 strip;
+  bool changed;
 };
 #endif
