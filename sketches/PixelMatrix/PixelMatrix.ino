@@ -26,6 +26,9 @@ RgbScreenBuffer rsb(dataPin,clockPin);
 
 uint8_t row;
 uint8_t col;
+bool ticked;
+boolean tickDisable;
+uint8_t  disableCount;
 void
 displayTime(uint8_t h, uint8_t m, uint8_t s)
 {
@@ -45,16 +48,16 @@ displayTime(uint8_t h, uint8_t m, uint8_t s)
 
 
 void ledTimerCallback(Task* task) {
-  rsb.clear();
-  Pos p(row,col);
-  RgbPixel px(random(255),random(255),random(255));
-  rsb.setPixel(p,px);
-  rsb.show();
-  if (++col == rsb.cols)
+  if ( ticked )
   {
-    col = 0;
-    if ( ++row == rsb.rows )
-      row = 0;
+    ticked = false;
+    if ( !tickDisable ) {
+      Rtc.refresh();
+      displayTime(Rtc.hour,Rtc.minute,Rtc.second); 
+    } else {
+      if ( !disableCount || !--disableCount ) 
+        tickDisable = false;
+    }
   }
 }
 Task ledTimer(100,ledTimerCallback);
@@ -134,17 +137,11 @@ doCommand(const String& i) {
   Serial.println(" OK");
 }
 
-boolean tickDisable;
-uint8_t  disableCount;
+
 void 
 tick() {
-  if ( !tickDisable ) {
-    Rtc.refresh();
-    displayTime(Rtc.hour,Rtc.minute,Rtc.second); 
-  } else {
-    if ( !disableCount || !--disableCount ) 
-      tickDisable = false;
-  }
+  ticked = true;
+  
 }
 
 #define FAST_TIME 50
@@ -225,10 +222,11 @@ setup() {
   attachInterrupt(0,tick,RISING);
   rsb.begin();
   SoftTimer.add(&buttonTimer);
-	//SoftTimer.add(&ledTimer);
+	SoftTimer.add(&ledTimer);
 	SoftTimer.add(&serialTimer);
   tickDisable = false;
   row = col = 0;
+  ticked = false;
 }
 
 
