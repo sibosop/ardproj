@@ -1,4 +1,4 @@
-#include "pixel.h"
+#include "Pos.h"
 
 const Pos zero[] =
 {
