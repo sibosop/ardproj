@@ -24,24 +24,53 @@ static const uint8_t clockPin = 9;    // Green wire on Adafruit Pixels
 
 RgbScreenBuffer rsb(dataPin,clockPin);
 
-uint8_t row;
-uint8_t col;
+
 bool ticked;
 boolean tickDisable;
 uint8_t  disableCount;
+uint8_t dispCount;
+bool minFlag;
+void
+displayMinute(uint8_t m)
+{
+  RgbPixel p(random(0x100),random(0x100),random(0x100));
+  rsb.clear();
+  DUMP(m/10);
+  DUMP(m%10);
+  rsb.putNumber(0,m/10,p);
+  rsb.putNumber(4,m%10,p);
+}
+
+void
+displayHour(uint8_t h)
+{
+  h = h % 12;
+  if ( !h )
+    h = 12;
+  RgbPixel p(random(0x100),random(0x100),random(0x100));
+  rsb.clear();
+  DUMP(h/10);
+  DUMP(h%10);
+  rsb.putNumber(3,h/10,p);
+  rsb.putNumber(7,h%10,p);
+}
+
+
 void
 displayTime(uint8_t h, uint8_t m, uint8_t s)
 {
-  rsb.clear();
-  Pos p(row,col);
-  RgbPixel px(random(255),random(255),random(255));
-  rsb.setPixel(p,px);
-  rsb.show();
-  if (++col == rsb.cols)
+  DUMP(h);
+  DUMP(m);
+  DUMP(s);
+  if ( ++dispCount == 2 )
   {
-    col = 0;
-    if ( ++row == rsb.rows )
-      row = 0;
+    dispCount = 0;
+    minFlag = !minFlag;
+    if ( minFlag )
+      displayMinute(m);
+    else
+      displayHour(h);
+    rsb.show();
   }
 }
 
@@ -162,7 +191,7 @@ buttonReaderCallback(Task* task) {
        }
        Rtc.setTimeDate(0,0,0,Rtc.hour,Rtc.minute+1==60?0:Rtc.minute+1,0);
        Rtc.refresh();
-       displayTime(Rtc.hour,Rtc.minute,Rtc.second);
+       displayMinute(Rtc.minute);
     }
   } else {
     minuteCount = 0;
@@ -176,7 +205,7 @@ buttonReaderCallback(Task* task) {
       hourTimer = SLOW_TIME;
       Rtc.setTimeDate(0,0,0,Rtc.hour+1==12?0:Rtc.hour+1,Rtc.minute,0);
       Rtc.refresh();
-      displayTime(Rtc.hour,Rtc.minute,Rtc.second);
+      displayHour(Rtc.hour);
     }
   } else {
     hourTimer = 1;
@@ -225,8 +254,9 @@ setup() {
 	SoftTimer.add(&ledTimer);
 	SoftTimer.add(&serialTimer);
   tickDisable = false;
-  row = col = 0;
   ticked = false;
+  dispCount = 0;
+  minFlag = true;
 }
 
 

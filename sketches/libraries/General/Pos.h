@@ -1,6 +1,7 @@
 #ifndef POS
 #define POS
 #include <stdint.h>
+#include <General.h>
 class Pos
 {
 public:
@@ -21,6 +22,12 @@ public:
   bool operator==(const Pos& p) const
   {
     return (p.row==row && p.col==col);
+  }
+  void dump() const
+  {
+    Serial.print("Pos: ");
+    DUMP(row);
+    DUMP(col);
   }
 };
 

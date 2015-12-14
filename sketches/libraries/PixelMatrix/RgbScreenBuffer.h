@@ -57,6 +57,7 @@ public:
     //DUMP(buffer[pos.row % rows][pos.col % cols].b);
   }
   
+  void putNumber(uint8_t offset, uint8_t number,const RgbPixel&);
   void begin()
   {
     strip.begin();
