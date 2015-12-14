@@ -36,11 +36,9 @@ class Adafruit_WS2801  {
   ~Adafruit_WS2801();
 	virtual void show(void);
 	virtual void setPixelColor(uint16_t n, uint32_t c);
+  virtual void setPixelColor(uint16_t n, uint8_t r, uint8_t g, uint8_t b);
   void
    	begin(void),
-    
-    setPixelColor(uint16_t n, uint8_t r, uint8_t g, uint8_t b),
-    
     setPixelColor(uint16_t x, uint16_t y, uint8_t r, uint8_t g, uint8_t b),
     setPixelColor(uint16_t x, uint16_t y, uint32_t c),
     updatePins(uint8_t dpin, uint8_t cpin), // Change pins, configurable
