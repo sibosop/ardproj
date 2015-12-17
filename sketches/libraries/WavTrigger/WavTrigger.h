@@ -8,6 +8,7 @@
 #define GET_VERSION 0x1
 #define GET_INFO 0x2
 #define CONTROL_TRACK 0x03
+#define VOLUME 0x05
 #define GET_STATUS 0x7
 #define VERSION_MSG 0x81
 #define INFO_MSG 0x82
@@ -135,6 +136,7 @@ private:
       void getVersion();
       void getTrackList();
       void controlTrack(uint16_t t, ControlCode c);
+      void volume(int16_t);
       
   };
   SerialTimerTask serialTimerTask;

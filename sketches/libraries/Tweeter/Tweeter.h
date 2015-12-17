@@ -12,7 +12,7 @@ public:
   void begin();
   void setList(const char *);
   bool needsList();
-  
+  void setVolume(int16_t v);
 private:
   void nextTrack();
   void setNewTrack();

@@ -149,3 +149,9 @@ Tweeter::needsList()
 {
   return *lp == 0;
 }
+
+void
+Tweeter::setVolume(int16_t v)
+{
+  wavTrigger.volume(v);
+}

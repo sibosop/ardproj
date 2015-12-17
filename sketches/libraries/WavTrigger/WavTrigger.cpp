@@ -56,8 +56,12 @@ WavTrigger::controlTrack(WTControlBlock* cb)
 {
   serialTimerTask.controlTrack(cb->track,cb->code);
 }
-// set the data rate for the SoftwareSerial port
 
+void
+WavTrigger::volume(int16_t v)
+{
+  serialTimerTask.volume(v);
+}
 
 
 
@@ -119,6 +123,15 @@ WavTrigger::SerialTimerTask::controlTrack(uint16_t t, ControlCode c)
   serial.write(c);
   serial.write(t & 0xff);
   serial.write(t >> 8);
+  serial.write(EOM);
+}
+void
+WavTrigger::SerialTimerTask::volume(int16_t v)
+{
+  MsgHeader header(7,VOLUME);
+  serial.write((const uint8_t *)&header,sizeof(header));
+  serial.write(v & 0xff);
+  serial.write(v >> 8);
   serial.write(EOM);
 }
 

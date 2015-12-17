@@ -1,5 +1,6 @@
 #include <arduino.h>
-#include "Tweeter.h"
+#include <Tweeter.h>
+#include <General.h>
 
 #define NUM_LISTS 5
 const char * const lists[NUM_LISTS] =
@@ -29,9 +30,30 @@ nextList()
 }
 
 
+uint16_t lastVol;
+static const int VolCount = 100;
+int count;
 void
 msgCallback(Task *)
 {
+  if ( ++count == VolCount )
+  {
+    count = 0;
+    uint16_t v = analogRead(A1);
+    v >>= 3;
+    float tmp = v;
+    tmp /=  (128.0 / 80.0);
+    v = tmp;
+    //DUMP(v);
+    //DUMP(tmp);
+    if(lastVol != v)
+    { 
+      lastVol = v;
+      int16_t vo = -70 + v;
+      DUMP(vo);
+      tweeter.setVolume(vo);
+    }
+  }
   if ( tweeter.needsList() )
   {
     nextList();
@@ -50,4 +72,6 @@ setup()
   tweeter.begin();
   SoftTimer.add(&msg);
   delay(2000);
+  lastVol = 0;
+  count = 0;
 }
