@@ -13,6 +13,7 @@ public:
   void setList(const char *);
   bool needsList();
   void setVolume(int16_t v);
+  int getNumTracks() { if ( numTracks == -1) return 0 ; return numTracks; }
 private:
   void nextTrack();
   void setNewTrack();
@@ -32,6 +33,7 @@ private:
   char list[40];
   char newList[40];
   char *lp;
+  int numTracks;
   
 };
 #endif

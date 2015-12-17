@@ -67,6 +67,8 @@ Tweeter::check()
     Serial.print("tracks: ");
     Serial.println(info.numTracks,DEC);
 #endif
+    if ( numTracks == -1 )
+      numTracks = info.numTracks;
   }
   if ( !info.valid )
     return;
@@ -134,6 +136,7 @@ Tweeter::begin()
   wavTrigger.requestInfo();
   randomSeed(analogRead(0));
   nextTrack();  
+  numTracks = -1;
 }
 
 void
