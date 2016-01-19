@@ -3,6 +3,6 @@
 #BOARD_SUB=16MHzatmega328
 # only this for uno
 BOARD_TAG=uno
-ARDUINO_LIBS = SPI SoftTimer
+ARDUINO_LIBS = SPI SoftTimer Omron General
 #include ../../Arduino.mk
 include $(ARDMK_DIR)/Arduino.mk

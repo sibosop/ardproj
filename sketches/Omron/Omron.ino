@@ -1,37 +1,35 @@
 
 #include <SoftTimer.h>
 #include <SPI.h>
+#include <Omron.h>
+#include <General.h>
 
 const int latchPin = 2;
 const int resetPin = 3;
+const int countMin = 100;
+const int countMax = 200;
 
+Omron omron(latchPin,resetPin);
 
-bool on;
+uint8_t nextCount;
 void motorCallback(Task* task) {
-  
-  if ( on )
+  if(!omron.ready(nextCount))
+    return;
+  if (++nextCount == omron.numMotors )
+    nextCount = 0;
+  if(omron.ready(nextCount))
   {
-    on = false;
-    uint8_t reg = random(256);
-    Serial.println(reg,HEX);
-    SPI.beginTransaction(SPISettings(14000000, MSBFIRST, SPI_MODE0));
-    digitalWrite(latchPin, LOW);
-    SPI.transfer(&reg,1);
-    digitalWrite(latchPin, HIGH);
-    SPI.endTransaction();
+    omron.set(nextCount);
+    omron.go();
   }
-  else
+  
+  if(omron.ready(nextCount))
   {
-    on = true;
-    uint8_t reg = 0;
-    SPI.beginTransaction(SPISettings(14000000, MSBFIRST, SPI_MODE0));
-    digitalWrite(latchPin, LOW);
-    SPI.transfer(&reg,1);
-    digitalWrite(latchPin, HIGH);
-    SPI.endTransaction();
+    if (++nextCount == Omron::numMotors)
+      nextCount = 0;
   }
 }
-Task patternTimer(1000,motorCallback);
+Task patternTimer(100,motorCallback);
 
 
 
@@ -43,10 +41,8 @@ void setup() {
   pinMode(latchPin,OUTPUT);
   pinMode(resetPin,OUTPUT);
   SPI.begin();
-  digitalWrite(latchPin, LOW);
-  digitalWrite(resetPin,0);
-  digitalWrite(resetPin,1);
-  digitalWrite(latchPin, HIGH);
-  
-  on=true;
+  omron.begin();
+  nextCount = 0;
+  omron.set(nextCount);
+  omron.go();
 }
