@@ -17,7 +17,7 @@ private:
   static const double loopInterval=1;
   
   static const int offTimerCount=1;
-  static const int runInterval=2000;
+  static const int runInterval=2500;
   static const int readyCount=runInterval/offTimerCount;
   static void handler(Task*);
   void handlerLoop();

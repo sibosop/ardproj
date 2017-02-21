@@ -38,7 +38,6 @@ Omron::go()
       onList[i]=true;
       setList[i]=false;
       readyTimer[i]=readyCount;
-      DUMP(readyTimer[i]);
       motorTimer[i]=offTimerCount;
       mask |= 1 <<i; 
     }
@@ -82,20 +81,26 @@ void
 Omron::handlerLoop()
 {
   uint8_t mask = 0;
+  bool changeFlag = false;
   for(int i=0; i<numMotors; ++i)
   {
-    
+    if ( !onList[i] )
+      continue;
     if (readyTimer[i])
     { 
       --readyTimer[i];
     }
     else
+    {
       onList[i]=false;
+      changeFlag = true;
+    }
     
     if (!motorTimer[i] || !--motorTimer[i])
       continue;
     mask |= 1 << i;
+    changeFlag = true;
   }
-  if(mask)
+  if(changeFlag)
     send(mask);
 }
