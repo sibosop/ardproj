@@ -10,7 +10,9 @@ public:
 		, len(_len)
 		, name(n)
 		, dir (d)
-	{}
+	{
+		reset(defaultVelocity);
+	}
 		
 	bool ready();
 	virtual bool next();
@@ -19,12 +21,11 @@ public:
 	int getPos();
 	
 private:
+	const int defaultVelocity = 20;
 	int pos;
 	int start;
 	int len;
-	
 	uint16_t velocity;
-	bool active;
 	uint16_t timer;
 	const char *name;
 	bool dir;

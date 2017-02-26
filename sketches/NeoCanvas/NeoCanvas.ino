@@ -63,7 +63,6 @@ void setup()
   Serial.print("pattern:");
   Serial.println(sizeof(Pattern));
   rotList.reset();
-  rotList.ptr()->reset(random(10,100));
   r = random(0,60);
   g = random(0,60);
   b = random(0,60);
