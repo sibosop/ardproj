@@ -10,14 +10,16 @@ public:
 		, len(_len)
 		, name(n)
 		, dir (d)
+		, velocity(defaultVelocity)
 	{
-		reset(defaultVelocity);
+		reset();
 	}
 	
 	bool ready();
 	virtual bool next();
 	const char *getName() { return name; }
-	virtual void reset(uint16_t);
+	virtual void reset();
+	void setVelocity(uint16_t v) { velocity = v; }
 	int getPos();
 	
 private:
@@ -25,10 +27,11 @@ private:
 	int pos;
 	int start;
 	int len;
-	uint16_t velocity;
+	
 	uint16_t timer;
 	const char *name;
 	bool dir;
+	uint16_t velocity;
 };
 
 #endif

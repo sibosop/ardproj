@@ -32,6 +32,7 @@ struct RGB {
 };
 
 RGB rgbList[NumRots];
+uint16_t vList[NumRots];
 
 bool
 testRot(int i)
@@ -45,9 +46,13 @@ testRot(int i)
     if ( p->next() )
     {
       p=rotList[i].next();
-      p->reset(random(50,100));
-      //if ( rotList[i].atHead() )
-        //rgbList[i].reset();
+      if ( rotList[i].atHead() )
+      {
+        vList[i] = random(50,200);
+        rgbList[i].reset();
+      }
+      p->setVelocity(vList[i]);
+      p->reset();
     }
 #if 0
     Serial.print(p->getName());
@@ -74,6 +79,7 @@ initRot(int i){
   rotList[i].add( new Pattern(0,16,"p6",false));
   rotList[i].reset();
   rgbList[i].reset();
+  vList[i] = random(50,100);
 }
 
 void ledTimerCallback(Task* task) {

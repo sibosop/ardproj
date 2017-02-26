@@ -20,9 +20,8 @@ Pattern::next()
 
 
 void 
-Pattern::reset(uint16_t v) 
+Pattern::reset() 
 {
-	velocity = v;
 	timer = velocity;
 	pos = 0;
 #if 0 
