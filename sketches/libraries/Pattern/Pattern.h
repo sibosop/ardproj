@@ -13,7 +13,7 @@ public:
 	{
 		reset(defaultVelocity);
 	}
-		
+	
 	bool ready();
 	virtual bool next();
 	const char *getName() { return name; }
@@ -21,7 +21,7 @@ public:
 	int getPos();
 	
 private:
-	const int defaultVelocity = 20;
+	static const int defaultVelocity = 20;
 	int pos;
 	int start;
 	int len;

@@ -17,6 +17,7 @@ public:
 	{
 	}
 	T *ptr() { return current->elem; }
+	bool atHead() { return current == head; }
 	void reset() { current = head; }
 	void add(T *e) {
 		if ( !head )
