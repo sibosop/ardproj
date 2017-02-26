@@ -15,15 +15,21 @@ const int NumPixels = 40;
 
 Adafruit_NeoPixel strip(NumPixels, NEO_DATA_PIN, NEO_GRB + NEO_KHZ800);
 
-Pattern c1(0,16,"c1");
-Pattern s1(16,24,"s1");
-Pattern c2(24,40,"c2");
+Pattern p1(0,16,"p1",true);
+Pattern p2(16,8,"p2",true);
+Pattern p3(24,16,"p3",true);
+Pattern p4(24,16,"p4",false);
+Pattern p5(16,8,"p5",false);
+Pattern p6(0,16,"p6",false);
 
 Pattern *PList[] =
 {
-  &c1
-  ,&s1
-  ,&c2
+  &p1
+  ,&p2
+  ,&p3
+  ,&p4
+  ,&p5
+  ,&p6
   ,0
 };
 
@@ -35,7 +41,7 @@ void ledTimerCallback(Task* task) {
   Pattern *m = PList[mi];
   if(m->ready())
   { 
-    strip.setPixelColor(m->lastPos,0);
+    strip.setPixelColor(m->getLastPos(),0);
     if ( m->done() )
     {
       if ( PList[++mi] == 0)
@@ -49,9 +55,9 @@ void ledTimerCallback(Task* task) {
 #if 0
     Serial.print(m->getName());
     Serial.print(":");
-    Serial.println(m->pos);
+    Serial.println(m->getPos());
 #endif
-    strip.setPixelColor(m->pos,r,g,b);
+    strip.setPixelColor(m->getPos(),r,g,b);
     strip.show();
   }
   

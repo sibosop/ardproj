@@ -16,7 +16,7 @@ Pattern::ready()
 bool 
 Pattern::done() 
 { 
-	return pos == maxPos;
+	return pos == len;
 }
 
 
@@ -25,5 +25,25 @@ Pattern::reset(uint16_t v)
 {
 	velocity = v;
 	timer = velocity;
-	pos = minPos;
+	pos = 0;
+#if 0
+	Serial.print(name);
+	Serial.print(" reset to:");
+	Serial.print(pos);
+	Serial.print(" start:");
+	Serial.println(start);
+#endif
+}
+
+
+int
+Pattern::getPos()
+{
+	return calcPos(pos);
+}
+
+int
+Pattern::getLastPos()
+{
+	return calcPos(lastPos);
 }
