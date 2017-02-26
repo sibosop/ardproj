@@ -1,6 +1,7 @@
 #ifndef PATTERN_H
 #define PATTERN_H
 #include <arduino.h>
+
 class Pattern{
 public:
 	Pattern(int _start,int _len,const char *n,bool d)

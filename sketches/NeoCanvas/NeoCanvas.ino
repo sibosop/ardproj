@@ -5,6 +5,7 @@
 #include "Adafruit_NeoPixel.h"
 #include "SoftTimer.h"
 #include "Pattern.h"
+#include "RotList.h"
 
 
 #define MINUTE_BUTTON 5
@@ -14,66 +15,53 @@
 const int NumPixels = 40;
 
 Adafruit_NeoPixel strip(NumPixels, NEO_DATA_PIN, NEO_GRB + NEO_KHZ800);
+RotList<Pattern> rotList;
 
-Pattern p1(0,16,"p1",true);
-Pattern p2(16,8,"p2",true);
-Pattern p3(24,16,"p3",true);
-Pattern p4(24,16,"p4",false);
-Pattern p5(16,8,"p5",false);
-Pattern p6(0,16,"p6",false);
-
-Pattern *PList[] =
-{
-  &p1
-  ,&p2
-  ,&p3
-  ,&p4
-  ,&p5
-  ,&p6
-  ,0
-};
-
-int pos;
-int mi;
 uint8_t r,g,b;
 
 void ledTimerCallback(Task* task) {
-  Pattern *m = PList[mi];
-  if(m->ready())
+  Pattern *p = rotList.ptr();
+  bool changed = false;
+  if(p->ready())
   { 
-    strip.setPixelColor(m->getLastPos(),0);
-    if ( m->done() )
+    changed = true;
+    strip.setPixelColor(p->getLastPos(),0);
+    if ( p->done() )
     {
-      if ( PList[++mi] == 0)
-        mi = 0;
-      m=PList[mi];
-      m->reset(random(10,100));
+      p=rotList.next();
+      p->reset(random(10,100));
       r = random(0,60);
       g = random(0,60);
       b = random(0,60);
     }
-#if 0
-    Serial.print(m->getName());
+#if 1
+    Serial.print(p->getName());
     Serial.print(":");
-    Serial.println(m->getPos());
+    Serial.println(p->getPos());
 #endif
-    strip.setPixelColor(m->getPos(),r,g,b);
-    strip.show();
+    strip.setPixelColor(p->getPos(),r,g,b);
+    
   }
-  
+  if ( changed )
+    strip.show();
 }
 Task ledTimer(1,ledTimerCallback);
 
 void setup() 
 {
-  
-  mi = 0;
+  rotList.add( new Pattern (0,16,"p1",true));
+  rotList.add( new Pattern(16,8,"p2",true));
+  rotList.add( new Pattern(24,16,"p3",true));
+  rotList.add( new Pattern(24,16,"p4",false));
+  rotList.add( new Pattern(16,8,"p5",false));
+  rotList.add( new Pattern(0,16,"p6",false));
+  rotList.reset();
+  rotList.ptr()->reset(random(10,100));
   r = random(0,60);
   g = random(0,60);
   b = random(0,60);
 	randomSeed(analogRead(0));
   Serial.begin(9600);
-  PList[mi]->reset(random(10,30));
   strip.begin();
   strip.show();
 	SoftTimer.add(&ledTimer);
