@@ -21,13 +21,11 @@ public:
 	void add(T *e) {
 		if ( !head )
 		{
-			Serial.println("addNew");
 			head = new Ptr();
 			head->next = head;
 			head->elem = e;
 			current = head;
 		} else {
-			Serial.println("add");
 			Ptr *n = new Ptr();
 			current->next = n;
 			n->elem = e;

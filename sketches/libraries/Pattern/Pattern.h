@@ -13,10 +13,10 @@ public:
 		, dir (d)
 	{}
 		
-	bool ready();
-	bool done();
+	virtual bool ready();
+	virtual bool done();
 	const char *getName() { return name; }
-	void reset(uint16_t);
+	virtual void reset(uint16_t);
 	int getPos();
 	int getLastPos();
 	
