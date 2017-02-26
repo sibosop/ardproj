@@ -26,7 +26,7 @@ Pattern::reset(uint16_t v)
 	velocity = v;
 	timer = velocity;
 	pos = 0;
-#if 1 
+#if 0 
 	Serial.print(name);
 	Serial.print(" reset to:");
 	Serial.print(pos);

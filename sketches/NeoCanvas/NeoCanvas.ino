@@ -34,7 +34,7 @@ void ledTimerCallback(Task* task) {
       g = random(0,60);
       b = random(0,60);
     }
-#if 1
+#if 0
     Serial.print(p->getName());
     Serial.print(":");
     Serial.println(p->getPos());
