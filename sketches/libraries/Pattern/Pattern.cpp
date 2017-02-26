@@ -5,8 +5,7 @@ Pattern::ready()
 {
   if (--timer == 0 )
 	{
-		lastPos = pos;
-		++pos;
+		
 		timer = velocity;
 		return true;
 	} 
@@ -14,9 +13,9 @@ Pattern::ready()
 }
 
 bool 
-Pattern::done() 
+Pattern::next() 
 { 
-	return pos == len;
+	return ++pos == len;
 }
 
 
@@ -39,11 +38,11 @@ Pattern::reset(uint16_t v)
 int
 Pattern::getPos()
 {
-	return calcPos(pos);
-}
+	int rval;
+	if ( dir )
+		rval = start+pos;
+	else
+		rval = (start+len-1) - pos;
+	return rval;
 
-int
-Pattern::getLastPos()
-{
-	return calcPos(lastPos);
 }

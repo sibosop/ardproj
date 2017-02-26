@@ -27,8 +27,8 @@ void ledTimerCallback(Task* task) {
   if(p->ready())
   { 
     changed = true;
-    strip.setPixelColor(p->getLastPos(),0);
-    if ( p->done() )
+    strip.setPixelColor(p->getPos(),0);
+    if ( p->next() )
     {
       p=rotList.next();
       p->reset(random(10,100));
@@ -55,8 +55,8 @@ void setup()
   Serial.println(freeRam());
   rotList.add( new Pattern (0,16,"p1",true));
   rotList.add( new Pattern(16,8,"p2",true));
-  rotList.add( new Pattern(24,16,"p3",true));
-  rotList.add( new Pattern(24,16,"p4",false));
+  rotList.add( new Pattern(24,16,"p3",false));
+  rotList.add( new Pattern(24,16,"p4",true));
   rotList.add( new Pattern(16,8,"p5",false));
   rotList.add( new Pattern(0,16,"p6",false));
   Serial.println(freeRam());
