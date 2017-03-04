@@ -12,7 +12,7 @@
 #define HOUR_BUTTON 6
 #define NEO_DATA_PIN 7
 
-const int NumPixels = 40;
+const int NumPixels = 48;
 const int NumRots = 8;
 Adafruit_NeoPixel strip(NumPixels, NEO_DATA_PIN, NEO_GRB + NEO_KHZ800);
 
@@ -48,7 +48,7 @@ testRot(int i)
       p=rotList[i].next();
       if ( rotList[i].atHead() )
       {
-        vList[i] = random(50,200);
+        vList[i] = random(30,100);
         rgbList[i].reset();
       }
       p->setVelocity(vList[i]);
@@ -71,12 +71,10 @@ testRot(int i)
 
 void
 initRot(int i){
-  rotList[i].add( new Pattern (0,16,"p1",true));
-  rotList[i].add( new Pattern(16,8,"p2",true));
-  rotList[i].add( new Pattern(24,16,"p3",false));
-  rotList[i].add( new Pattern(24,16,"p4",true));
-  rotList[i].add( new Pattern(16,8,"p5",false));
-  rotList[i].add( new Pattern(0,16,"p6",false));
+  rotList[i].add( new Pattern (0,24,"p1",true));
+  rotList[i].add( new Pattern(24,16,"p2",false));
+  rotList[i].add( new Pattern(24,16,"p2",true));
+  rotList[i].add( new Pattern(40,8,"p3",true));
   rotList[i].reset();
   rgbList[i].reset();
   vList[i] = random(50,100);
