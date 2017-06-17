@@ -71,10 +71,16 @@ testRot(int i)
 
 void
 initRot(int i){
+#if 0
   rotList[i].add( new Pattern (0,24,"p1",true));
   rotList[i].add( new Pattern(24,16,"p2",false));
   rotList[i].add( new Pattern(24,16,"p2",true));
   rotList[i].add( new Pattern(40,8,"p3",true));
+#endif
+#if 1
+  rotList[i].add( new Pattern (0,16,"p1",true));
+  rotList[i].add( new Pattern (0,16,"p2",false));
+#endif
   rotList[i].reset();
   rgbList[i].reset();
   vList[i] = random(50,100);

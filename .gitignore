@@ -30,3 +30,5 @@
 Arduino-Makefile
 build-*
 .DS_Store
+
+*.swp

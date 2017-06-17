@@ -7,7 +7,6 @@
 #include "Adafruit_WS2801.h"
 #include "LedClocker.h"
 #include "SoftTimer.h"
-#include "RGBRamp.h"
 
 // RTC clock:
 // 	SCLK-> 13
@@ -16,7 +15,6 @@
 
 
 #define RTC_INTERRUPT 2
-#define BALL_PIN 3					// Data is yellow
 #define MINUTE_BUTTON 5
 #define HOUR_BUTTON 6
 #define NEO_DATA_PIN 7
@@ -25,32 +23,14 @@
 #define BLUE_TOOTH_TX 14 // A0
 #define BLUE_TOOTH_RX	15 // A1
 
-#define NUM_BALLS 2
 
 
+Adafruit_NeoPixel strip(LedClocker::NumPixels+60, NEO_DATA_PIN, NEO_GRB + NEO_KHZ800);
 
 
-Adafruit_NeoPixel strip(LedClocker::NumPixels, NEO_DATA_PIN, NEO_GRB + NEO_KHZ800);
-
-Adafruit_NeoPixel  balls(NUM_BALLS,BALL_PIN,NEO_GRB + NEO_KHZ800);
-
-RGBRamp	ramps[NUM_BALLS];
 
 
 void ledTimerCallback(Task* task) {
-  bool changed = false;
-	for ( int i = 0; i < NUM_BALLS; ++i ) {
-		ramps[i].step();
-		uint32_t val = ramps[i].getVal();
-		//Serial.println(val,HEX);
-  	//Serial.println(0xffffff-val,HEX);
-		balls.setPixelColor(i,val);
-		bool c = ramps[i].changed();
-		if ( c )
-			changed = c;
-	}
-  if (changed)
-     balls.show();
 }
 Task ledTimer(3,ledTimerCallback);
 
@@ -58,9 +38,9 @@ volatile int state = LOW;
 void 
 doCommand(const String& i) {
   char b[100];
-	uint32_t	color;
-	int h,m,test;
-	char dummy;
+  uint32_t	color;
+  int h,m,test;
+  char dummy;
   i.toCharArray(b,sizeof(b));
   //Serial.print(b);
   switch(b[0]) {
@@ -69,62 +49,63 @@ doCommand(const String& i) {
       return;
 			
     case 't':
-		{
+    {
       test = sscanf(b,"%c %d %d",&dummy,&h,&m);
 			Serial.print("hour,minute ");
 			Serial.print(h,DEC);
 			Serial.print(" ");
 			Serial.println(m,DEC);
+
       if ( test != 3 || !Rtc.setTimeDate(0,0,0,h,m,0)) {
-				Serial.println(": Illegal Time");
-				return;
+        Serial.println(": Illegal Time");
+        return;
       }	
-		}
-		break;
+    }
+    break;
 		
-		case 'h':
-		test = sscanf(b,"%c %lx",&dummy,&color);
-		if ( test != 2 ) {
-			Serial.println(": Illegal color");
-			return;
-		}
-		Serial.print("Set Hour Color to ");
-		Serial.println(color,HEX);
-		Display.setHourColor(color);
-		break;
-		
-		case 'm':
-		test = sscanf(b,"%c %lx",&dummy, &color);
-		if ( test != 2 ) {
-			Serial.println(": Illegal color");
-			return;
-		}
-		Serial.print("Set Minute Color to ");
-		Serial.println(color,HEX);
-		Display.setMinuteColor(color);
-		break;
-		
-		case 'b':
-		test = sscanf(b,"%c %lx",&dummy, &color);
-		if ( test != 2 ) {
-			Serial.println(": Illegal color");
-			return;
-		}
-		Serial.print("Set Background Color to ");
-		Serial.println(color,HEX);
-		Display.setBackgroundColor(color);
-		break;
-		
-		case 'p':
-		test = sscanf(b,"%c %lx",&dummy, &color);
-		if ( test != 2 ) {
-			Serial.println(": Illegal color");
-			return;
-		}
-		Serial.print("Set Point Color to ");
-		Serial.println(color,HEX);
-		Display.setPointColor(color);
-		break;
+    case 'h':
+      test = sscanf(b,"%c %lx",&dummy,&color);
+      if ( test != 2 ) {
+        Serial.println(": Illegal color");
+        return;
+      }
+      Serial.print("Set Hour Color to ");
+      Serial.println(color,HEX);
+      Display.setHourColor(color);
+    break;
+    
+    case 'm':
+      test = sscanf(b,"%c %lx",&dummy, &color);
+      if ( test != 2 ) {
+        Serial.println(": Illegal color");
+        return;
+      }
+      Serial.print("Set Minute Color to ");
+      Serial.println(color,HEX);
+      Display.setMinuteColor(color);
+    break;
+    
+    case 'b':
+      test = sscanf(b,"%c %lx",&dummy, &color);
+      if ( test != 2 ) {
+        Serial.println(": Illegal color");
+        return;
+      }
+      Serial.print("Set Background Color to ");
+      Serial.println(color,HEX);
+      Display.setBackgroundColor(color);
+    break;
+    
+    case 'p':
+      test = sscanf(b,"%c %lx",&dummy, &color);
+      if ( test != 2 ) {
+        Serial.println(": Illegal color");
+        return;
+      }
+      Serial.print("Set Point Color to ");
+      Serial.println(color,HEX);
+      Display.setPointColor(color);
+    break;
   }
   Serial.println(" OK");
 }
@@ -212,9 +193,7 @@ setup() {
   Serial.begin(9600);
   strip.begin();
   strip.show();
-	balls.begin();
-	balls.show();
-  Display.init(&strip);
+  Display.init(&strip,false,60);
   Rtc.init(RTC_CHIP_SELECT);
   //Rtc.setTimeDate( 11,12,13,10,15,00 ); 
   pinMode(RTC_INTERRUPT,INPUT);
