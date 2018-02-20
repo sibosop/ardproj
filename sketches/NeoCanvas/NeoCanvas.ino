@@ -1,11 +1,9 @@
-
-
-
 #include "General.h"
 #include "Adafruit_NeoPixel.h"
 #include "SoftTimer.h"
 #include "Pattern.h"
 #include "RotList.h"
+#include "RGB.h"
 
 
 #define MINUTE_BUTTON 5
@@ -18,18 +16,6 @@ Adafruit_NeoPixel strip(NumPixels, NEO_DATA_PIN, NEO_GRB + NEO_KHZ800);
 
 RotList<Pattern> rotList[NumRots];
 
-struct RGB {
-  uint8_t r;
-  uint8_t g;
-  uint8_t b;
-  RGB() { reset(); }
-  void reset()
-  {
-    r = random(0,60);
-    g = random(0,60);
-    b = random(0,60);
-  }
-};
 
 RGB rgbList[NumRots];
 uint16_t vList[NumRots];
@@ -77,9 +63,13 @@ initRot(int i){
   rotList[i].add( new Pattern(24,16,"p2",true));
   rotList[i].add( new Pattern(40,8,"p3",true));
 #endif
-#if 1
+#if 0
   rotList[i].add( new Pattern (0,16,"p1",true));
   rotList[i].add( new Pattern (0,16,"p2",false));
+#endif
+#if 1
+  rotList[i].add( new Pattern (0,8,"p1",true));
+  rotList[i].add( new Pattern (0,8,"p2",false));
 #endif
   rotList[i].reset();
   rgbList[i].reset();
@@ -107,11 +97,11 @@ void setup()
   Serial.print("pattern:");
   Serial.println(sizeof(Pattern));
   
-	randomSeed(analogRead(0));
+  randomSeed(analogRead(0));
   
   strip.begin();
   strip.show();
-	SoftTimer.add(&ledTimer);
+  SoftTimer.add(&ledTimer);
 }
 
 

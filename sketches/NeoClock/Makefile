@@ -4,6 +4,7 @@ BOARD_SUB=16MHzatmega328
 
 # only this for uno
 #BOARD_TAG=uno
-ARDUINO_LIBS = Stripper Adafruit_NeoPixel SPI RTC  Adafruit_WS2801 LedClocker  SoftTimer RGBRamp EEPROM
+ARDUINO_LIBS = Stripper Adafruit_NeoPixel SPI RTC \
+  Adafruit_WS2801 LedClocker  SoftTimer RGBRamp EEPROM RotList Pattern RGB
 #include ../../Arduino.mk
 include $(ARDMK_DIR)/Arduino.mk
