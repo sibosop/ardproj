@@ -3,6 +3,6 @@ BOARD_TAG=pro
 BOARD_SUB=16MHzatmega328
 # only this for uno
 #BOARD_TAG=uno
-ARDUINO_LIBS = SoftTimer General
+ARDUINO_LIBS = SoftTimer General 
 #include ../../Arduino.mk
 include $(ARDMK_DIR)/Arduino.mk
