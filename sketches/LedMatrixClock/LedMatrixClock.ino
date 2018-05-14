@@ -5,13 +5,20 @@
 #include "RTC.h"
 #include "SoftTimer.h"
 
+#define USE_NEON_BAR
 
 #define RTC_INTERRUPT 2			
 #define MINUTE_BUTTON 5
 #define HOUR_BUTTON 6
 #define RTC_CHIP_SELECT	8
 
+#ifdef USE_NEON_BAR
+#define SECOND_METER_PIN  3
+const int latchPin = 9;
+#else
 const int latchPin = 3;
+#endif
+
 const int resetPin = 4;
 uint8_t coff = 0;
 uint8_t val = 0;
@@ -63,11 +70,41 @@ displayHour(uint8_t hour)
   val = (hour ? hour : 12);
 }
 
+//const uint8_t secBase = (255-(3*59));
+#define SEC_MAX 231
+#define SEC_MIN 25
+
+#define Y1 SEC_MIN
+#define Y2 SEC_MAX
+#define DY  (Y2-Y1)
+#define X1 0
+#define X2 60
+#define DX  (X2-X1)
+
+
+
+void
+displaySecond(uint8_t sec)
+{
+#ifdef USE_NEON_BAR
+  uint8_t val;
+  
+  //val = secBase + (sec * 3);
+  val = Y1 + DY * (sec - X1) / DX;
+  DUMP(sec);
+  DUMP(val);
+  analogWrite(SECOND_METER_PIN,val);
+#endif
+}
+
+
 void
 displayTime(uint8_t hour,uint8_t minute,uint8_t second)
 {
+  displaySecond(second);
   if ( --displayCount )
     return;
+  
   displayCount = 2;
   if ( left )
   {
@@ -251,8 +288,9 @@ void setup() {
   minuteTimer=hourTimer=modeTimer = 1;
   minuteCount=SLOW_TIME;
   pinMode(RTC_INTERRUPT,INPUT);
-  
-  
+#ifdef USE_NEON_BAR
+  pinMode(SECOND_METER_PIN,OUTPUT);
+#endif
   pinMode(MINUTE_BUTTON,INPUT_PULLUP);
   pinMode(HOUR_BUTTON,INPUT_PULLUP);
   
@@ -278,4 +316,5 @@ void setup() {
 	SoftTimer.add(&serialTimer);
 	SoftTimer.add(&patternTimer);
   tickDisable = false;
+  
 }

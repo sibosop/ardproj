@@ -1,23 +1,30 @@
 
 #include <SPI.h>
-#include "RTC.h"
-#include "SoftTimer.h"
 #include "General.h"
+#include "RTC.h"
 
+#include "SoftTimer.h"
 
-#define RTC_INTERRUPT 2
-				
-#define MINUTE_BUTTON 5
-#define HOUR_BUTTON 6
-#define RTC_CHIP_SELECT	8
-#define HOUR_METER_PIN 9
-#define MINUTE_METER_PIN 10	
 // RTC clock:
 // 	SCLK-> 13
 //  MISO-> 12
 //  MISI-> 11
 
-volatile int state = LOW;
+#define RTC_INTERRUPT 2
+#define SECOND_METER_PIN  3
+#define MINUTE_BUTTON 5
+#define HOUR_BUTTON 6
+#define RTC_CHIP_SELECT	8
+#define MINUTE_METER_PIN  9
+#define HOUR_METER_PIN  10
+#define MAX_SECOND 240
+
+
+
+
+bool ticked;
+boolean tickDisable;
+uint8_t  disableCount;
 
 const uint8_t hourTable[] = 
 {
@@ -48,7 +55,8 @@ const uint8_t minTable[] =
 void
 displayHour(uint8_t hour)
 {
-  analogWrite(HOUR_METER_PIN, hourTable[hour]);
+  hour %= 12;
+  analogWrite(HOUR_METER_PIN, hourTable[hour+1]);
 }
 
 void
@@ -58,16 +66,28 @@ displayMinute(uint8_t min)
 }
 
 void
-displayTime(uint8_t hour, uint8_t minute, uint8_t second)
+displaySecond(uint8_t sec)
 {
-  Serial.println("displayTime");
-  DUMP(hour);
-  DUMP(minute);
-  DUMP(second);
-  displayHour(hour);
-  displayMinute(minute);
+  analogWrite(SECOND_METER_PIN, (MAX_SECOND/60)  * sec);
+}
+ 
+
+
+
+void
+displayTime(uint8_t h, uint8_t m, uint8_t s)
+{
+  DUMP(h);
+  DUMP(m);
+  DUMP(s);
+  displaySecond(s);
+  displayMinute(m);
+  displayHour(h);
 }
 
+
+
+volatile int state = LOW;
 void 
 doCommand(const String& i) {
   char b[100];
@@ -87,23 +107,21 @@ doCommand(const String& i) {
 			Serial.print(h,DEC);
 			Serial.print(" ");
 			Serial.println(m,DEC);
-      if ( test != 3 || !Rtc.setTimeDate(0,0,0,h,m,0)) {
+      if ( test != 3 || !Rtc.setTimeDate(0,0,0,h-1,m,0)) {
 				Serial.println(": Illegal Time");
 				return;
       }	
 		}
-		break;
+		break;	
   }
   Serial.println(" OK");
 }
 
-boolean tickDisable;
-uint8_t  disableCount;
+
+
 void 
 tick() {
-  Serial.println("tick");
   if ( !tickDisable ) {
-    Serial.println("refresh");
     Rtc.refresh();
     displayTime(Rtc.hour,Rtc.minute,Rtc.second); 
   } else {
@@ -111,6 +129,7 @@ tick() {
       tickDisable = false;
   }
 }
+
 
 #define FAST_TIME 50
 #define SLOW_TIME 100
@@ -130,7 +149,7 @@ buttonReaderCallback(Task* task) {
        }
        Rtc.setTimeDate(0,0,0,Rtc.hour,Rtc.minute+1==60?0:Rtc.minute+1,0);
        Rtc.refresh();
-       displayMinute(Rtc.minute);
+       displayTime(Rtc.hour,Rtc.minute,Rtc.second); 
     }
   } else {
     minuteCount = 0;
@@ -144,7 +163,7 @@ buttonReaderCallback(Task* task) {
       hourTimer = SLOW_TIME;
       Rtc.setTimeDate(0,0,0,Rtc.hour+1==12?0:Rtc.hour+1,Rtc.minute,0);
       Rtc.refresh();
-      displayHour(Rtc.hour);
+      displayTime(Rtc.hour,Rtc.minute,Rtc.second); 
     }
   } else {
     hourTimer = 1;
@@ -174,23 +193,27 @@ Task serialTimer(10,serialReaderCallback);
 Task buttonTimer(3,buttonReaderCallback);
 
 
-
 void
 setup() {
+	randomSeed(analogRead(0));
   minuteTimer=hourTimer=modeTimer = 1;
   minuteCount=SLOW_TIME;
   Serial.begin(9600);
+  pinMode(HOUR_METER_PIN, OUTPUT);
+  pinMode(MINUTE_METER_PIN, OUTPUT);
+  pinMode(SECOND_METER_PIN, OUTPUT);
   
+  Rtc.init(RTC_CHIP_SELECT);
   pinMode(RTC_INTERRUPT,INPUT);
   pinMode(MINUTE_BUTTON,INPUT_PULLUP);
   pinMode(HOUR_BUTTON,INPUT_PULLUP);
-  pinMode(HOUR_METER_PIN,OUTPUT);
-  pinMode(MINUTE_METER_PIN,OUTPUT);
   attachInterrupt(0,tick,RISING);
-  Rtc.init(RTC_CHIP_SELECT);
+  
   SoftTimer.add(&buttonTimer);
 	SoftTimer.add(&serialTimer);
+  
   tickDisable = false;
+  ticked = false;
 }
 
 

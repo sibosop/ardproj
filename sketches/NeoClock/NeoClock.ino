@@ -33,9 +33,9 @@ enum RotStatus
   Running
 };
 
-//#define WITH_TAIL
+#define WITH_TAIL
 #ifdef WITH_TAIL
-const int RotListOffset = 60;
+const int RotListOffset = 58;
 const int NumRots = 6;
 #else
 const int RotListOffset = 0;
@@ -110,7 +110,7 @@ testRot(int i)
 
 void
 initRot(int i){
-  rotList[i].add( new Pattern (0,60,"p2",false));
+  rotList[i].add( new Pattern (0,RotListOffset,"p2",false));
   rotList[i].reset();
   rgbList[i].reset();
   vList[i] = random(LowVel,HighVel);
