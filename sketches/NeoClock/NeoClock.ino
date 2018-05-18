@@ -35,7 +35,7 @@ enum RotStatus
 
 #define WITH_TAIL
 #ifdef WITH_TAIL
-const int RotListOffset = 58;
+const int RotListOffset = 57;
 const int NumRots = 6;
 #else
 const int RotListOffset = 0;

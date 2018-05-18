@@ -6,12 +6,16 @@
 #include "RGB.h"
 
 
-#define MINUTE_BUTTON 5
-#define HOUR_BUTTON 6
+#define NEO_TEST
+#ifdef NEO_TEST
+#define NEO_DATA_PIN 2
+const int NumPixels = 144;
+const int NumRots = 1;
+#else
 #define NEO_DATA_PIN 7
-
 const int NumPixels = 48;
 const int NumRots = 8;
+#endif
 Adafruit_NeoPixel strip(NumPixels, NEO_DATA_PIN, NEO_GRB + NEO_KHZ800);
 
 RotList<Pattern> rotList[NumRots];
@@ -57,6 +61,10 @@ testRot(int i)
 
 void
 initRot(int i){
+#ifdef NEO_TEST
+  rotList[i].add( new Pattern (0, NumPixels-1,"p1",true));
+  rotList[i].add( new Pattern (0, NumPixels-1,"p1",false));
+#endif
 #if 0
   rotList[i].add( new Pattern (0,24,"p1",true));
   rotList[i].add( new Pattern(24,16,"p2",false));
@@ -67,7 +75,7 @@ initRot(int i){
   rotList[i].add( new Pattern (0,16,"p1",true));
   rotList[i].add( new Pattern (0,16,"p2",false));
 #endif
-#if 1
+#if 0
   rotList[i].add( new Pattern (0,8,"p1",true));
   rotList[i].add( new Pattern (0,8,"p2",false));
 #endif
