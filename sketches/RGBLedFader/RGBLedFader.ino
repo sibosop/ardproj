@@ -30,20 +30,38 @@ Adafruit_WS2801 strip = Adafruit_WS2801(NUM_PIXELS, dataPin, clockPin);
 
 
 #endif
-
-
+const int fifoSize =8;
+class Fifo {
+private:
+  uint32_t buff[fifoSize];
+public:
+  void clear() {
+    for (int i = 0; i < fifoSize; ++i )
+      buff[i] = 0;
+  }
+  void push(uint32_t val) {
+    for (int i = 0; i < fifoSize-1; ++i )
+    {
+      uint32_t tmp = buff[fifoSize-2-i];
+      buff[fifoSize-1-i] = tmp;
+    }
+    buff[0]=val;
+  }
+  uint32_t get(void) {
+    return buff[fifoSize-1];
+  }
+};
+Fifo fifos[NUM_PIXELS];
 void ledTimerCallback(Task* task) { 
 	ramp.step();
   if (ramp.changed())
   {
-    uint32_t tmp;
-    for (uint16_t i = 0; i < NUM_PIXELS-1; ++i )
-    {
-      tmp = strip.getPixelColor(NUM_PIXELS-2-i);
-      strip.setPixelColor(NUM_PIXELS-1-i,tmp);
-    }
     uint32_t val = ramp.getVal();
-    strip.setPixelColor(0,val);
+    for (int i = 0; i < NUM_PIXELS; ++i ) {
+      fifos[i].push(val);
+      strip.setPixelColor(i,val);
+      val = fifos[i].get();
+    }
     strip.show();
   }
 }
