@@ -9,7 +9,7 @@
 #define NEO_TEST
 #ifdef NEO_TEST
 #define NEO_DATA_PIN 2
-const int NumPixels = 144;
+const int NumPixels = 15;
 const int NumRots = 1;
 #else
 #define NEO_DATA_PIN 7
@@ -62,8 +62,8 @@ testRot(int i)
 void
 initRot(int i){
 #ifdef NEO_TEST
-  rotList[i].add( new Pattern (0, NumPixels-1,"p1",true));
-  rotList[i].add( new Pattern (0, NumPixels-1,"p1",false));
+  rotList[i].add( new Pattern (0, NumPixels,"p1",true));
+  rotList[i].add( new Pattern (0, NumPixels,"p1",false));
 #endif
 #if 0
   rotList[i].add( new Pattern (0,24,"p1",true));

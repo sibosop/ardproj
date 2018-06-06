@@ -33,7 +33,7 @@ enum RotStatus
   Running
 };
 
-#define WITH_TAIL
+//#define WITH_TAIL
 #ifdef WITH_TAIL
 const int RotListOffset = 57;
 const int NumRots = 6;

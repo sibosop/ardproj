@@ -12,7 +12,7 @@ RGBRamp	ramp;
 #include "stripper.h"
 #ifdef NEO
 #include <Adafruit_NeoPixel.h>
-uint8_t	PIN = 2;
+uint8_t	PIN = 7;
 Adafruit_NeoPixel strip = Adafruit_NeoPixel(NUM_PIXELS, PIN, NEO_GRB + NEO_KHZ800);
 #else
 #include "Adafruit_WS2801.h"
