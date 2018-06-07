@@ -6,11 +6,11 @@
 
 #define rxPin 6
 #define txPin 7
-static const int port = 6666;
+static const int port = 1024;
 
 static const char *ssid = "sibosop";
 static const char *password = "sibosopsiboso";
-static const char *address = "192.168.1.109"; 
+static const char *address = "192.168.1.144"; 
 
 Esp8266 esp = Esp8266(rxPin,txPin,ssid,password,port,address);
 enum EspState {
