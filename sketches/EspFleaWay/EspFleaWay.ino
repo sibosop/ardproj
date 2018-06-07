@@ -33,7 +33,7 @@ void espCallback(Task *) {
   {
     Serial.print("got:");
     Serial.println(buff);
-    espState = WaitForRequest;
+    espState = WaitResponse;
     requestTimeout = 500;
   }
   switch ( espState )
@@ -56,14 +56,22 @@ void espCallback(Task *) {
       break;
       
     case SendRequest:
-      Serial.println("sendRequest");
-      esp.sendRequest("tweet");
+      Serial.println("sendRequest: connect *is* request. no data sent");
+     // esp.sendRequest("tweet");
       espState = WaitResponse;
       break;
       
-    case WaitForRequest:
+    case WaitResponse:
+      if ( !esp.isConnected() )
+      {
+        Serial.println("connection closed");
+        espState = WaitReady;
+        break;
+      }
+#if 0
       if ( --requestTimeout == 0 )
         espState = WaitReady;
+#endif
       break;
       
     default:
@@ -78,8 +86,8 @@ void setup()  {
   // define pin modes for tx, rx:
   Serial.begin(9600);
   // make sure AT+CIOBAUD=9600 has been done
-  esp.begin(9600);
   SoftTimer.add(&espTimer);
+  esp.begin(9600);
   Flea flea;
   Serial.println(sizeof(flea),DEC);
 }

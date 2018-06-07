@@ -137,6 +137,11 @@ Esp8266::parseMsg()
     
     case Idle:
       break;
+      
+    case RetryConnect:
+      state = Idle;
+      break;
+      
     default:
       Serial.print("BAD STATE:");
       Serial.println(state,DEC);
@@ -204,7 +209,7 @@ Esp8266::msgTask()
     
     case Error:
       Serial.println("Got Error");
-      state = Idle;
+      state = Reset;
       break;
       
     case WaitReset:
