@@ -1,14 +1,16 @@
 #!/usr/bin/env python
 import threading
 import Flea
+import FleaSpi
+import random
 
 LaneMutex = threading.Lock()
 
 MaxLanes = 4
-MaxSlots = 5
+MaxSlots = 30
 LaneTable = []
 
-
+debug=False
 
 
 class Place:
@@ -28,54 +30,69 @@ class Place:
     return self.pos['slot']
     
   def clear(self):
+    FleaSpi.queueVal(str(self))
+    FleaSpi.queueVal("0".ljust(6,'0'))
     self.flea = None
     
   def show(self):
     if self.flea != None:
-      return self.flea.name.ljust(8)
-    return "-".ljust(8)
+      return self.flea.number.ljust(4)
+    return "-".ljust(4)
    
   def __str__(self):
-    return str(self.lane())+":"+str(self.slot()) 
+    if debug: print self.pos['lane'],":",self.pos['slot']
+    val = self.pos['lane'] << 6
+    val |= self.pos['slot']
+    return "%02X" % val
     
 def setPlace(flea,place):
   if flea.place != None:
-    flea.place.flea = None
+    flea.place.clear()
   flea.place = place
   place.flea = flea
+  if place != None:
+    FleaSpi.queueVal(str(place))
+    FleaSpi.queueVal(str(flea))
     
     
 def findPlace(flea):
+  LaneMutex.acquire()
+  touched = True
+  rval = False
   if flea.place == None:
+    t = False
+    emptys = []
     for i in range(MaxLanes-1,-1,-1):
       if LaneTable[i][0].empty():
-        setPlace(flea,LaneTable[i][0])
-        return False
-    return False
-  
-  lane = flea.place.lane()
-  slot = flea.place.slot()
-  nextSlot = slot + 1
-  # look ahead straight
-  if nextSlot == MaxSlots:
-    LaneTable[lane][slot].clear()
-    return True
-    
-  if LaneTable[lane][nextSlot].empty():
-    setPlace(flea,LaneTable[lane][nextSlot])
-    return False
-          
-  # then left
-  if lane != 0:
-    if LaneTable[lane-1][nextSlot].empty():
+        emptys.append(i)
+    if len(emptys) != 0:
+      setPlace(flea,LaneTable[random.choice(emptys)][0])
+      t = True
+    touched = t
+  else:
+    lane = flea.place.lane()
+    slot = flea.place.slot()
+    nextSlot = slot + 1
+    # look ahead straight
+    if nextSlot == MaxSlots:
+      LaneTable[lane][slot].clear()
+      touched = True
+      rval = True
+    elif LaneTable[lane][nextSlot].empty():
+      setPlace(flea,LaneTable[lane][nextSlot])
+      touched = True
+    elif lane != 0 and LaneTable[lane-1][nextSlot].empty():
       setPlace(flea,LaneTable[lane-1][nextSlot])
-      return False  
-  # then right
-  if (lane+1) != MaxLanes:
-    if LaneTable[lane+1][nextSlot].empty():
+      touched = True
+    elif (lane+1) != MaxLanes and LaneTable[lane+1][nextSlot].empty():
       setPlace(flea,LaneTable[lane+1][nextSlot])
-      return False
-  return False
+      touched = True
+  
+  if touched:
+    FleaSpi.flushIt()
+    dump()
+  LaneMutex.release()
+  return rval
   
 def dump():
   for lane in LaneTable:
