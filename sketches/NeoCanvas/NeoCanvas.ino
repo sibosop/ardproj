@@ -6,15 +6,20 @@
 #include "RGB.h"
 
 
-#define NEO_TEST
+//#define NEO_TEST
 #ifdef NEO_TEST
 #define NEO_DATA_PIN 2
 const int NumPixels = 15;
 const int NumRots = 1;
-#else
+const int Interval = 1;
+#endif
+
+#define FIREFLY
+#ifdef FIREFLY
 #define NEO_DATA_PIN 7
-const int NumPixels = 48;
-const int NumRots = 8;
+const int NumPixels = 8;
+const int NumRots = 2;
+const float Interval =1;
 #endif
 Adafruit_NeoPixel strip(NumPixels, NEO_DATA_PIN, NEO_GRB + NEO_KHZ800);
 
@@ -65,6 +70,10 @@ initRot(int i){
   rotList[i].add( new Pattern (0, NumPixels,"p1",true));
   rotList[i].add( new Pattern (0, NumPixels,"p1",false));
 #endif
+#ifdef FIREFLY
+  rotList[i].add( new Pattern (0, NumPixels,"p1",true));
+  rotList[i].add( new Pattern (0, NumPixels,"p1",false));
+#endif
 #if 0
   rotList[i].add( new Pattern (0,24,"p1",true));
   rotList[i].add( new Pattern(24,16,"p2",false));
@@ -92,7 +101,7 @@ void ledTimerCallback(Task* task) {
   if ( changed )
     strip.show();
 }
-Task ledTimer(1,ledTimerCallback);
+Task ledTimer(Interval,ledTimerCallback);
 
 void setup() 
 {

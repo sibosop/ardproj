@@ -7,11 +7,11 @@ import random
 LaneMutex = threading.Lock()
 
 MaxLanes = 4
-MaxSlots = 30
+MaxSlots = 36
 LaneTable = []
 
 debug=False
-
+dumpIt=True
 
 class Place:
   def __init__(self,l,p):
@@ -37,7 +37,7 @@ class Place:
   def show(self):
     if self.flea != None:
       return self.flea.number.ljust(4)
-    return "-".ljust(4)
+    return " ".ljust(4)
    
   def __str__(self):
     if debug: print self.pos['lane'],":",self.pos['slot']
@@ -90,7 +90,7 @@ def findPlace(flea):
   
   if touched:
     FleaSpi.flushIt()
-    dump()
+    if dumpIt: dump()
   LaneMutex.release()
   return rval
   

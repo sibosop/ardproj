@@ -185,7 +185,7 @@ Task buttonTimer(3,buttonReaderCallback);
 
 void setup() {
   Serial.begin(9600);
-  randomSeed(analogRead(A4));
+  //randomSeed(analogRead(A4));
   // done in RTC
   //SPI.begin(); 
   minuteTimer=hourTimer=modeTimer = 1;

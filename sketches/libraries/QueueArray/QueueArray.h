@@ -107,7 +107,7 @@ class QueueArray {
     void blink () const;
 
     // the initial size of the queue.
-    static const int initialSize = 2;
+    static const int initialSize = 1000;
 
     // the pin number of the on-board led.
     static const int ledPin = 13;

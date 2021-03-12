@@ -5,4 +5,5 @@ BOARD_SUB=16MHzatmega328
 #BOARD_TAG=uno
 ARDUINO_LIBS = SPI SoftTimer NixieCtrl General RTC
 #include ../../Arduino.mk
+CPPFLAGS=-DIN12
 include $(ARDMK_DIR)/Arduino.mk

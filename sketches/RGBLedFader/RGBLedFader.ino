@@ -3,7 +3,9 @@
 #include "RGBRamp.h"
 
 
+//#define NUM_PIXELS 8
 #define NUM_PIXELS 40
+
 
 RGBRamp	ramp;
 

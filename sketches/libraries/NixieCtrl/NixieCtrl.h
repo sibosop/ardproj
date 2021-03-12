@@ -2,7 +2,7 @@
 #define NIXIE_CTRL
 #include <SoftTimer.h>
 #include <stdint.h>
-
+//#define in12
 class NixieCtrl : public Task
 {
 private:
@@ -13,9 +13,15 @@ private:
   static const int displayEnd = 65;
   static const int displaySetDelay = 20;
   static const double refreshTime = .08;
+#ifdef IN12
+  static const int trin12[10];
+#endif  
 public:
   NixieCtrl(uint8_t latchPin_,uint8_t enablePin_);
-  void set(uint8_t num, uint8_t val) { tubeVal[num] = val % 10; }
+
+  void set(uint8_t num, uint8_t val);
+
+
   void init();
 	
 private:
