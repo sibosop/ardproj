@@ -3,10 +3,6 @@
 #include <General.h>
 
 
-#ifdef IN12
-//                                 0,1,2,3,4,5,6,7,8,9
-const int NixieCtrl::trin12[10] = {1,5,4,3,6,8,0,7,9,2};
-#endif
 
 void 
 NixieCtrl::refreshCallback(Task *t)
@@ -35,13 +31,10 @@ NixieCtrl::init()
   pinMode(enablePin,OUTPUT);
   SoftTimer.add(this);
 }
-#ifdef IN12
-void 
-NixieCtrl::set(uint8_t num, uint8_t val) { tubeVal[num] = trin12[val % 10]; }
-#else
+
 void 
 NixieCtrl::set(uint8_t num, uint8_t val) { tubeVal[num] = val % 10; }
-#endif
+
 
 void  
 NixieCtrl::refresh()
