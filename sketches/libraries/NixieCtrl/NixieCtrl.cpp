@@ -42,8 +42,15 @@ NixieCtrl::refresh()
   //DUMP(blankTimer);
   if (!blankTimer++)
   {
+    uint8_t tval = tubeVal[tubeCnt];
+    tval <<= 4;
+    SPI.beginTransaction(SPISettings(15000000, MSBFIRST, SPI_MODE0));
+    digitalWrite(latchPin, LOW);
+    SPI.transfer(&tval,1);
+    digitalWrite(latchPin, HIGH);
+    SPI.endTransaction();
     //Serial.println("blank start ");
-    disable();
+    //disable();
     if (++tubeCnt == numTubes )
     {
       tubeCnt = 0;
@@ -51,10 +58,17 @@ NixieCtrl::refresh()
     }
     return;
   }
+  // This is the blank interval
   if ( blankTimer == displayStart )
   {
     //DUMP(blankTimer);
     //DUMP(tubeCnt);
+    
+    return;
+  }
+  // This is the display interval
+  if ( blankTimer == displayStart + displaySetDelay)
+  {
     uint8_t tval = tubeVal[tubeCnt];
     tval <<= 4;
     tval |= mask;
@@ -65,11 +79,6 @@ NixieCtrl::refresh()
     SPI.transfer(&tval,1);
     digitalWrite(latchPin, HIGH);
     SPI.endTransaction();
-    return;
-  }
-  if ( blankTimer == displayStart + displaySetDelay)
-  {
-    enable();
     return;
   }
     

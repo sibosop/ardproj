@@ -46,7 +46,11 @@ displayHour(uint8_t hour)
 void
 displaySecond(uint8_t second)
 {
-  analogWrite(METER_PIN, second);
+#ifdef BARGRAPH
+  analogWrite(METER_PIN, second*4.25);
+#else
+  analogWrite(METER_PIN, second*4);
+#endif
 }
 void
 displayTime(uint8_t hour,uint8_t minute,uint8_t second)
