@@ -49,7 +49,7 @@ displaySecond(uint8_t second)
 #ifdef BARGRAPH
   analogWrite(METER_PIN, second*4.25);
 #else
-  analogWrite(METER_PIN, second*4);
+  analogWrite(METER_PIN, second);
 #endif
 }
 void
