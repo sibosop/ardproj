@@ -1,7 +1,8 @@
 
 #ifndef RGB_H
 #define RGB_H
-
+#include <stdint.h>
+#include <arduino.h>
 struct RGB {
   uint8_t r;
   uint8_t g;

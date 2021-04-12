@@ -2,9 +2,9 @@
 #include "SoftTimer.h"
 #include "Bug.h"
 
-
-
+#ifndef NUM_PIXELS
 #define NUM_PIXELS 93
+#endif
 
 #define NUM_BUGS 5
 Bug bugs[NUM_BUGS];
@@ -17,25 +17,19 @@ Adafruit_NeoPixel strip = Adafruit_NeoPixel(NUM_PIXELS, PIN, NEO_GRB + NEO_KHZ80
 
 int counter = 0;
 void ledTimerCallback(Task* task) {
-  bool doShow = false;
-  for (int i = 0; i < NUM_BUGS; ++i)
-  {
-    if (bugs[i].process())
-      doShow = true;
-  }
-  if (doShow)
+  strip.clear();
+  if (bugManager.process())
     strip.show();
 }
 
 Task ledTimer(1,ledTimerCallback);
 
 void setup() {
+  
 	randomSeed(analogRead(0));
 	strip.begin();
-  // Update LED contents, to start they are all 'off'
   strip.show();
-  for (int i = 0; i < NUM_BUGS; ++i)
-    bugs[i].init(&strip,NUM_PIXELS);
   Serial.begin(9600);
+  bugManager.init();
   SoftTimer.add(&ledTimer);
 }

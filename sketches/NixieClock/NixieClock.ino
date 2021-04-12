@@ -42,7 +42,7 @@ displayHour(uint8_t hour)
   nixieCtrl.set(2,hour%10);
 }
 
-
+// use CXXFLAGS_STD to define
 void
 displaySecond(uint8_t second)
 {
