@@ -20,6 +20,10 @@ const BugRingManager::BugRing BugRingManager::bugRings[MAX_RINGS] =
 
 BugRingManager bugRingManager;
 
+int BugRingManager::getRealPos(const BugPos& p) const {
+  return p.pos + bugRings[p.ring].offset;
+}
+
 BugPos BugRingManager::npos(const BugPos& p) {
   BugPos rval(p);
   rval.ring = (rval.ring-1) + random(0,3);

@@ -18,6 +18,7 @@ class BugRingManager {
   static const BugRing bugRings[MAX_RINGS];
 public:
   BugPos npos(const BugPos& p);
+  int getRealPos(const BugPos& p) const; 
 };
 
 extern BugRingManager bugRingManager;

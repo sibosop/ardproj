@@ -1,5 +1,6 @@
 #ifndef BUG_H
 #define BUG_H
+#include "Adafruit_NeoPixel.h"
 
 
 #include "RGB.h"
@@ -10,6 +11,7 @@
 #endif
 
 #include "BugRing.h"
+class BugManager;
 
 struct BugPos {
   int pos;
@@ -42,8 +44,8 @@ struct BugPos {
 };
 
 class Bug {
+  friend BugManager;
 private:
-  
   int speed;
   int speedCount;
   RGB color;
@@ -117,6 +119,12 @@ public:
       rval = true;
     }
     return rval;
+  }
+  void setStrip(Adafruit_NeoPixel& strip) {
+    for (int i = 0; i < NUM_BUGS; ++i ) {
+      if (!bugs[i].pos) continue;
+      strip.setPixelColor(bugRingManager.getRealPos(bugs[i].pos), bugs[i].color.r, bugs[i].color.g, bugs[i].color.b);
+    }
   }
 };
 

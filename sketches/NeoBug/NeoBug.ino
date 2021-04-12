@@ -18,8 +18,10 @@ Adafruit_NeoPixel strip = Adafruit_NeoPixel(NUM_PIXELS, PIN, NEO_GRB + NEO_KHZ80
 int counter = 0;
 void ledTimerCallback(Task* task) {
   strip.clear();
-  if (bugManager.process())
+  if (bugManager.process()) {
+    bugManager.setStrip(strip);
     strip.show();
+  }
 }
 
 Task ledTimer(1,ledTimerCallback);
