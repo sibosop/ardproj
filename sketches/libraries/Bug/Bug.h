@@ -5,6 +5,7 @@
 
 #include "RGB.h"
 
+#define DEBUG
 
 #ifndef NUM_BUGS
 #define NUM_BUGS  5
@@ -16,6 +17,9 @@ class BugManager;
 struct BugPos {
   int pos;
   int ring;
+#ifdef DEBUG
+  char debugBuf[15];
+#endif
   BugPos() 
     : pos(-1)
     ,ring(-1)
@@ -27,6 +31,14 @@ struct BugPos {
   bool operator!() {
     return pos == -1 ;
   }
+  
+#ifdef DEBUG
+  const char *str() {
+    sprintf(debugBuf,"r%d p%d",ring,pos);
+    return debugBuf;
+  }
+#endif
+  
   bool operator==(const BugPos& p) const {
     return ring == p.ring && pos == p.pos;
   }
@@ -49,8 +61,9 @@ private:
   int speed;
   int speedCount;
   RGB color;
-  static const int MaxSpeed = 500;
-  static const int MinSpeed = 100;
+  static const int MaxSpeed = 1000;
+  static const int MinSpeed = 500;
+  
 public:
   BugPos pos;
   Bug(){};
@@ -104,10 +117,23 @@ public:
     {
       if (!bugs[i].ready())
         continue;
+#ifdef DEBUG
+      char buf[50];
+#endif
+      
       // are we in off the board position
       if (!bugs[i].pos) {
-        if (posOccupied(BugPos(0,0)))
+        if (posOccupied(BugPos(0,0))) {
+#ifdef DEBUG
+          sprintf(buf,"bug[%d]: center occupied: %s\r\n",i,bugs[i].pos.str());
+          Serial.print(buf);
+#endif
           return false;
+        }
+#ifdef DEBUG
+        sprintf(buf,"bug[%d]: initial: %s\r\n",i,bugs[i].pos.str());
+        Serial.print(buf);
+#endif        
         bugs[i].init();
         bugs[i].pos.setCenter();
         rval = true;
@@ -117,7 +143,13 @@ public:
         continue;
       bugs[i].pos = npos;
       rval = true;
+      
+#ifdef DEBUG
+      sprintf(buf,"bug[%d]: %s\r\n",i,bugs[i].pos.str());
+      Serial.print(buf);
+#endif
     }
+    
     return rval;
   }
   void setStrip(Adafruit_NeoPixel& strip) {

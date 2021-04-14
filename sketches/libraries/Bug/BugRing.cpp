@@ -4,18 +4,19 @@
 #ifndef RING_COUNT
 #define RING_COUNT 6
 #endif
+#define DEBUG
 
 const BugRingManager::BugRing BugRingManager::bugRings[MAX_RINGS] =
 {
-  BugRing(1,0),
-  BugRing(8,1),
-  BugRing(12,9),
-  BugRing(16,21),
-  BugRing(24,37),
-  BugRing(32,61),
-  BugRing(40,93),
-  BugRing(48,133),
-  BugRing(60,181)
+  BugRing(1,0), //0
+  BugRing(8,1), //1
+  BugRing(12,9),//2
+  BugRing(16,21),//3
+  BugRing(24,37),//4
+  BugRing(32,61),//5
+  BugRing(40,93),//6
+  BugRing(48,133),//7
+  BugRing(60,181)//8
 };
 
 BugRingManager bugRingManager;
@@ -24,18 +25,37 @@ int BugRingManager::getRealPos(const BugPos& p) const {
   return p.pos + bugRings[p.ring].offset;
 }
 
-BugPos BugRingManager::npos(const BugPos& p) {
+BugPos BugRingManager::npos(BugPos& p) {
   BugPos rval(p);
+#ifdef DEBUG
+  char db[200];
+#endif
+#ifdef DEBUG
+  sprintf(db,"rval = %s p = %s",rval.str(),p.str());
+  Serial.println(db);
+#endif
   rval.ring = (rval.ring-1) + random(0,3);
+#ifdef DEBUG
+  sprintf(db,"new ring %d",rval.ring);
+  Serial.println(db);
+#endif
   
   // edge conditions where bug falls off
   if ( (rval.ring < 0) ||  (rval.ring == RING_COUNT))
   {
+#ifdef DEBUG
+  sprintf(db,"bug off");
+  Serial.println(db);
+#endif
     rval.setNoRing();
     return rval;
   }
   // Center condition
   if (!rval.ring) {
+#ifdef DEBUG
+  sprintf(db,"setting center");
+  Serial.println(db);
+#endif
     rval.setCenter();
     return rval;
   }
@@ -44,23 +64,61 @@ BugPos BugRingManager::npos(const BugPos& p) {
   if ((rval.ring == 1) && p.isCenter())
   {  
     rval.pos = random(0,8);
+#ifdef DEBUG
+  sprintf(db,"setting from center %s",rval.str());
+  Serial.println(db);
+#endif
+    return rval;
+  }
+  float scnt = bugRings[p.ring].cnt;
+  float ncnt = bugRings[rval.ring].cnt;
+  float rat = ncnt / scnt;
+  
+#ifdef DEBUG
+  sprintf(db,"from ring %d to ring %d rat %s pos %d"
+    , p.ring
+    , rval.ring
+    , String(rat).c_str()
+    , p.pos
+    );   
+  Serial.println(db);
+#endif
+  
+  if ( p.ring == rval.ring ) {
+    if ( random(0,2) ) {
+      rval.pos += 1;
+      if ( rval.pos == bugRings[p.ring].cnt )
+        rval.pos = 0;
+    } else {
+      if (!rval.pos) 
+        rval.pos = bugRings[p.ring].cnt - 1;
+      else
+        rval.pos -= 1;
+    }
+#ifdef DEBUG
+    sprintf(db,"same ring %d moved from %d to %d", rval.ring, p.pos, rval.pos);
+    Serial.println(db);
+#endif
     return rval;
   }
   
-  float scnt = bugRings[p.ring].cnt;
-  float ncnt = bugRings[rval.ring].cnt;
-  float rat = scnt / ncnt;
   float np = (float) p.pos * rat;
-  //printf("r = %f np = %f\n", r, np);
-  if ( floor(np) == ceil(np) ) {
+  float fl = floor(np);
+  float ce = ceil(np);
+#ifdef DEBUG
+  sprintf(db,"new pos %s floor %s ceil %s", String(np).c_str(), String(fl).c_str(), String(ce).c_str() );
+  Serial.println(db);
+#endif
+  
+  if ( fl == ce ) {
     switch (random(0,3))
     {
       case 0:
         //printf("doing sub ");
-        if ( floor(np) == 0)
+        if ( fl == 0)
           rval.pos = ncnt-1;
         else
-          rval.pos = floor(np) - 1;
+          rval.pos = fl - 1;
         break;
 
       case 1:
@@ -70,23 +128,23 @@ BugPos BugRingManager::npos(const BugPos& p) {
       
       case 2:
         //printf("doing plus ");
-        if ( floor(np)+1 == (ncnt))
+        if ( fl+1 == (ncnt))
           rval.pos =  0;
         else
-          rval.pos =  floor(np) + 1;
+          rval.pos =  fl + 1;
       default:
         break;
     }
   } else {
     if ( random(0,2) )  {
       //printf("doing floor ");
-      rval.pos = floor(np);
+      rval.pos = fl;
     }
     else
     {
       //printf("doing ceil ");
-      rval.pos = ceil(np);
+      rval.pos = ce;
     }
-  }
+  } 
   return rval;
 }

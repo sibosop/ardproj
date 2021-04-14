@@ -17,7 +17,7 @@ class BugRingManager {
   };
   static const BugRing bugRings[MAX_RINGS];
 public:
-  BugPos npos(const BugPos& p);
+  BugPos npos(BugPos& p);
   int getRealPos(const BugPos& p) const; 
 };
 
