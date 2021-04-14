@@ -4,7 +4,7 @@
 #ifndef RING_COUNT
 #define RING_COUNT 6
 #endif
-#define DEBUG
+//#define DEBUG_RING
 
 const BugRingManager::BugRing BugRingManager::bugRings[MAX_RINGS] =
 {
@@ -27,32 +27,37 @@ int BugRingManager::getRealPos(const BugPos& p) const {
 
 BugPos BugRingManager::npos(BugPos& p) {
   BugPos rval(p);
-#ifdef DEBUG
+#ifdef DEBUG_RING
   char db[200];
 #endif
-#ifdef DEBUG
+#ifdef DEBUG_RING
   sprintf(db,"rval = %s p = %s",rval.str(),p.str());
   Serial.println(db);
 #endif
-  rval.ring = (rval.ring-1) + random(0,3);
-#ifdef DEBUG
+  if (!rval.isCenter())
+    rval.ring = (rval.ring-1) + random(0,3);
+  else
+    rval.ring = random(0,2);
+  
+#ifdef DEBUG_RING
   sprintf(db,"new ring %d",rval.ring);
   Serial.println(db);
 #endif
   
   // edge conditions where bug falls off
-  if ( (rval.ring < 0) ||  (rval.ring == RING_COUNT))
+  if ( rval.ring == RING_COUNT )
   {
-#ifdef DEBUG
-  sprintf(db,"bug off");
-  Serial.println(db);
+#ifdef DEBUG_RING
+    sprintf(db,"bug off back to center with new color");
+    Serial.println(db);
 #endif
-    rval.setNoRing();
+    rval.setCenter();
+    rval.setOff();
     return rval;
   }
   // Center condition
   if (!rval.ring) {
-#ifdef DEBUG
+#ifdef DEBUG_RING
   sprintf(db,"setting center");
   Serial.println(db);
 #endif
@@ -64,7 +69,7 @@ BugPos BugRingManager::npos(BugPos& p) {
   if ((rval.ring == 1) && p.isCenter())
   {  
     rval.pos = random(0,8);
-#ifdef DEBUG
+#ifdef DEBUG_RING
   sprintf(db,"setting from center %s",rval.str());
   Serial.println(db);
 #endif
@@ -74,7 +79,7 @@ BugPos BugRingManager::npos(BugPos& p) {
   float ncnt = bugRings[rval.ring].cnt;
   float rat = ncnt / scnt;
   
-#ifdef DEBUG
+#ifdef DEBUG_RING
   sprintf(db,"from ring %d to ring %d rat %s pos %d"
     , p.ring
     , rval.ring
@@ -95,7 +100,7 @@ BugPos BugRingManager::npos(BugPos& p) {
       else
         rval.pos -= 1;
     }
-#ifdef DEBUG
+#ifdef DEBUG_RING
     sprintf(db,"same ring %d moved from %d to %d", rval.ring, p.pos, rval.pos);
     Serial.println(db);
 #endif
@@ -105,7 +110,7 @@ BugPos BugRingManager::npos(BugPos& p) {
   float np = (float) p.pos * rat;
   float fl = floor(np);
   float ce = ceil(np);
-#ifdef DEBUG
+#ifdef DEBUG_RING
   sprintf(db,"new pos %s floor %s ceil %s", String(np).c_str(), String(fl).c_str(), String(ce).c_str() );
   Serial.println(db);
 #endif

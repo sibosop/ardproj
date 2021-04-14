@@ -21,6 +21,7 @@ bool stop = false;
 int counter = 0;
 void ledTimerCallback(Task* task) {
   strip.clear();
+#ifdef DEBUG
   if (Serial.available())
   {
     Serial.read();
@@ -32,6 +33,7 @@ void ledTimerCallback(Task* task) {
       stop = true;
     }
   }
+#endif
     
   if (!stop && bugManager.process()) {
     bugManager.setStrip(strip);
@@ -45,8 +47,11 @@ void setup() {
 	randomSeed(analogRead(0));
 	strip.begin();
   strip.show();
-  Serial.begin(9600);
+  
   bugManager.init();
+#ifdef DEBUG
+  Serial.begin(9600);
   Serial.println("Bug");
+#endif
   SoftTimer.add(&ledTimer);
 }
