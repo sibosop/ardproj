@@ -4,14 +4,15 @@
 
 
 
-RGBRamp::RGBRamp() 
+RGBRamp::RGBRamp(uint16_t max) 
 	: changed_(false)
+  , maxDest(max)
 {	
 	for (int i = 0; i < 3; ++i) {
 		stopped[i] = false;
 		curVal[i] = 0;
 		curSpeed[i] = 0;
-		dest[i] = random(0,256);
+		dest[i] = random(0,maxDest);
 		speed[i] = random(LowSpeed,HighSpeed);
 	}
 }
@@ -28,7 +29,7 @@ RGBRamp::step() {
 			stopped[i] = false;
 			//Serial.print(i,HEX);
 			//Serial.println(" starting");
-			dest[i] = random(0,256);
+			dest[i] = random(0,maxDest);
 			speed[i] = random(LowSpeed,HighSpeed);
 			continue;
 		}
@@ -36,13 +37,13 @@ RGBRamp::step() {
 		changed_ = true;
 		if ( curVal[i]  == dest[i] ) {
 			if ( dest[i] == 0 ) {
-				dest[i] = random(0,256);
+				dest[i] = random(0,maxDest);
 				speed[i] = StoppedSpeed;
 				stopped[i] = true;
 				//Serial.print(i,HEX);
 				//Serial.println(" Stopped");
 			} else { 
-				dest[i] = random(0,256);
+				dest[i] = random(0,maxDest);
 				if ( dest[i] < 50 ) {
 					dest[i] = 0;
 				}

@@ -6,7 +6,7 @@
 
 class RGBRamp {
 public:
-	RGBRamp();
+	RGBRamp(uint16_t max=256);
 
 	void	step();
 	uint32_t  getVal(void);
@@ -14,6 +14,7 @@ public:
 	
   private:
 	uint8_t	curVal[3];
+  uint16_t maxDest;
 	uint8_t	dest[3];
 	uint16_t curSpeed[3];
 	uint16_t	speed[3];
