@@ -3,7 +3,7 @@
 #include "RGBRamp.h"
 
 
-#define NUM_PIXELS 2
+#define NUM_PIXELS 4
 
 RGBRamp	ramp;
 
@@ -12,7 +12,8 @@ RGBRamp	ramp;
 #include "stripper.h"
 #ifdef NEO
 #include <Adafruit_NeoPixel.h>
-uint8_t	PIN = 2;
+//uint8_t	PIN = 2;
+uint8_t	PIN = 7;  // For ArdLedRing board
 Adafruit_NeoPixel strip = Adafruit_NeoPixel(NUM_PIXELS, PIN, NEO_GRB + NEO_KHZ800);
 #else
 #include "Adafruit_WS2801.h"
@@ -41,6 +42,8 @@ void ledTimerCallback(Task* task) {
   //Serial.println(0xffffff-val,HEX);
 	strip.setPixelColor(0,val);
 	strip.setPixelColor(1,val);
+	strip.setPixelColor(2,val);
+	strip.setPixelColor(3,val);
   if ( !changed )
     	changed = ramp.changed();
 

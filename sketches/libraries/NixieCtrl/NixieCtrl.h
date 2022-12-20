@@ -12,7 +12,7 @@ private:
   static const int displayStart = 2;
   static const int displayEnd = 65;
   static const int displaySetDelay = 5;
-  static const double refreshTime = .08;
+  const double refreshTime = .08;
 public:
   NixieCtrl(uint8_t latchPin_,uint8_t enablePin_);
 

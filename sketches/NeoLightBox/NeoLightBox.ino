@@ -3,7 +3,7 @@
 #include "RGBRamp.h"
 
 
-#define NUM_PIXELS 8
+#define NUM_PIXELS 2
 
 RGBRamp	ramp(256);
 
@@ -24,9 +24,11 @@ void ledTimerCallback(Task* task) {
 	uint32_t val = ramp.getVal();
   //Serial.println(val,HEX);
   //Serial.println(0xffffff-val,HEX);
-  for (int i =0; i < 2; ++i )
-	  strip.setPixelColor(i,val);
-  
+  //for (int i =0; i < 2; ++i )
+  //for (int i =0; i < 2; ++i )
+  strip.setPixelColor(0,val);
+  strip.setPixelColor(1,val);
+
   if ( !changed )
     	changed = ramp.changed();
 
