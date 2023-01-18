@@ -4,6 +4,6 @@ BOARD_SUB=16MHzatmega328
 
 # only this for uno
 #BOARD_TAG=uno
-ARDUINO_LIBS = SPI RTC SoftTimer General
+ARDUINO_LIBS = SPI RTC SoftTimer General Stripper Adafruit_NeoPixel
 #include ../../Arduino.mk
 include $(ARDMK_DIR)/Arduino.mk

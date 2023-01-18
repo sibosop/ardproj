@@ -2,8 +2,15 @@
 #include <SPI.h>
 #include "General.h"
 #include "RTC.h"
-
 #include "SoftTimer.h"
+#include "Adafruit_NeoPixel.h"
+
+
+#define NEO_DATA_PIN 7
+const int NumPixels = 8;
+const int MinColor= 0;
+const int MaxColor = 150;
+Adafruit_NeoPixel strip(NumPixels, NEO_DATA_PIN, NEO_GRB + NEO_KHZ800);
 
 // RTC clock:
 // 	SCLK-> 13
@@ -21,7 +28,6 @@
 
 
 
-
 bool ticked;
 boolean tickDisable;
 uint8_t  disableCount;
@@ -29,18 +35,18 @@ uint8_t  disableCount;
 const uint8_t hourTable[] = 
 {
   0
-  ,16  //1
-  ,35  //2
-  ,50  //3
-  ,73  //4
-  ,96  //5
-  ,118  //6
-  ,140  //7
-  ,161  //8
-  ,179  //9
-  ,197  //10
-  ,215  //11
-  ,230  //12
+  ,4  //1
+  ,25 //2
+  ,46  //3
+  ,65 //4
+  ,93  //5
+  ,115  //6
+  ,135  //7
+  ,160  //8
+  ,180  //9
+  ,200  //10
+  ,220 //11
+  ,240  //12
 };
 const uint8_t minTable[] =
 {
@@ -52,11 +58,24 @@ const uint8_t minTable[] =
   ,200,204,208,212,216,220,224,228,232,236 // 40
   ,240
 };
+
+uint8_t lastHour = 0;
 void
 displayHour(uint8_t hour)
 {
   hour %= 12;
   analogWrite(HOUR_METER_PIN, hourTable[hour+1]);
+  if ( hour != lastHour ) {
+    int r,g,b;
+    lastHour = hour;
+    r = random(MinColor,MaxColor);
+    g = random(MinColor,MaxColor);
+    b = random(MinColor,MaxColor);
+    for (int i = 0; i < NumPixels; ++i) {
+      strip.setPixelColor(i,r,g,b);
+    }
+    strip.show();
+  } 
 }
 
 void
@@ -208,6 +227,12 @@ setup() {
   pinMode(MINUTE_BUTTON,INPUT_PULLUP);
   pinMode(HOUR_BUTTON,INPUT_PULLUP);
   attachInterrupt(0,tick,RISING);
+  
+  randomSeed(analogRead(0));
+  
+  strip.begin();
+  strip.show();
+  
   
   SoftTimer.add(&buttonTimer);
 	SoftTimer.add(&serialTimer);
