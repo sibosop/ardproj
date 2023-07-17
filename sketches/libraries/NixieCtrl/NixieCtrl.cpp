@@ -43,7 +43,9 @@ NixieCtrl::refresh()
   if (!blankTimer++)
   {
     uint8_t tval = tubeVal[tubeCnt];
+    //tval = 0xf;   // try an undefined val
     tval <<= 4;
+    
     SPI.beginTransaction(SPISettings(15000000, MSBFIRST, SPI_MODE0));
     digitalWrite(latchPin, LOW);
     SPI.transfer(&tval,1);

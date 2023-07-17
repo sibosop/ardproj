@@ -9,7 +9,7 @@ private:
 	static const int numTubes = 4;
 	static const int clk = 13;
 	static const int mosi = 11;
-  static const int displayStart = 2;
+  static const int displayStart = 50;
   static const int displayEnd = 65;
   static const int displaySetDelay = 5;
   const double refreshTime = .08;
