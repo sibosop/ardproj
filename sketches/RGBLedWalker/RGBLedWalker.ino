@@ -8,6 +8,13 @@
 RGBRamp	ramp;
 
 #define NEO
+//#define ANAOUT
+
+#ifdef ANAOUT
+const uint8_t anpinR = 3;
+const uint8_t anpinG = 5;
+const uint8_t anpinB = 6;
+#endif
 
 #include "stripper.h"
 #ifdef NEO
@@ -47,8 +54,14 @@ void ledTimerCallback(Task* task) {
   if ( !changed )
     	changed = ramp.changed();
 
-  if (changed)
-     strip.show();
+  if (changed) {
+#ifdef ANAOUT
+    analogWrite(anpinR,(uint8_t)(val & 0xff));
+    analogWrite(anpinG,(uint8_t)((val & 0xff00)>>8));
+    analogWrite(anpinB,(uint8_t)((val & 0xff0000)>>16));
+#endif
+    strip.show();
+  }
 }
 
 
